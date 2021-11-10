@@ -3585,6 +3585,14 @@
       "Y": -12032,
       "Z": 58907,
       "Room": 10
+    },
+    {
+      "X": 19968,
+      "Y": -8448,
+      "Z": 56832,
+      "Room": 7,
+      "Difficulty": "Hard",
+      "RequiresGlitch": true
     }
   ],
   "TOWER.TR2": [

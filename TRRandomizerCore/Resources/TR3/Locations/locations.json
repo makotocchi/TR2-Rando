@@ -2386,6 +2386,29 @@
       "Y": 8192,
       "Z": 66533,
       "Room": 167
+    },
+    {
+      "X": 87552,
+      "Y": -4352,
+      "Z": 60928,
+      "Room": 12,
+      "Difficulty": "Hard",
+      "RequiresGlitch": true
+    },
+    {
+      "X": 42216,
+      "Y": 2069,
+      "Z": 68842,
+      "Room": 157,
+      "RequiresGlitch": true
+    },
+    {
+      "X": 90624,
+      "Y": 2816,
+      "Z": 56832,
+      "Room": 6,
+      "Difficulty": "Hard",
+      "RequiresGlitch": true
     }
   ],
   "RAPIDS.TR2": [

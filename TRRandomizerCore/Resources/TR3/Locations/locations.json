@@ -1535,6 +1535,51 @@
       "Y": 27136,
       "Z": 82367,
       "Room": 91
+    },
+    {
+      "X": 54784,
+      "Y": 21504,
+      "Z": 81408,
+      "Room": 145,
+      "Difficulty": "Hard",
+      "RequiresGlitch": true
+    },
+    {
+      "X": 76288,
+      "Y": 24064,
+      "Z": 76288,
+      "Room": 152,
+      "Difficulty": "Hard",
+      "RequiresGlitch": true
+    },
+    {
+      "X": 67072,
+      "Y": 24064,
+      "Z": 76288,
+      "Room": 152,
+      "Difficulty": "Hard",
+      "RequiresGlitch": true
+    },
+    {
+      "X": 86528,
+      "Y": 19584,
+      "Z": 64000,
+      "Room": 75,
+      "Difficulty": "Hard",
+      "RequiresGlitch": true
+    },
+    {
+      "X": 33280,
+      "Y": 22016,
+      "Z": 59904,
+      "Room": 25
+    },
+    {
+      "X": 36808,
+      "Y": 26600,
+      "Z": 57347,
+      "Room": 30,
+      "Difficulty": "Hard"
     }
   ],
   "MINES.TR2": [

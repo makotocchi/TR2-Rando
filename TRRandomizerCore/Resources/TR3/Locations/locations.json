@@ -3482,6 +3482,34 @@
       "Y": 5120,
       "Z": 54419,
       "Room": 84
+    },
+    {
+      "X": 87552,
+      "Y": 2560,
+      "Z": 31232,
+      "Room": 23
+    },
+    {
+      "X": 69120,
+      "Y": -1536,
+      "Z": 51712,
+      "Room": 35,
+      "Difficulty": "Hard",
+      "RequiresGlitch": true
+    },
+    {
+      "X": 15872,
+      "Y": 6912,
+      "Z": 61952,
+      "Room": 220,
+      "Difficulty": "Hard",
+      "RequiresGlitch": true
+    },
+    {
+      "X": 64000,
+      "Y": 4736,
+      "Z": 46592,
+      "Room": 76
     }
   ],
   "TONYBOSS.TR2": [

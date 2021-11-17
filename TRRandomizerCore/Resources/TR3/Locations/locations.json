@@ -638,8 +638,7 @@
       "Y": 3328,
       "Z": 36943,
       "Room": 64,
-      "Difficulty": "Hard",
-      "Validated": false
+      "Difficulty": "Hard"
     },
     {
       "X": 37420,
@@ -731,8 +730,8 @@
       "Y": -7680,
       "Z": 30180,
       "Room": 100,
-      "RequiresGlitch": true,
-      "Difficulty": "Hard"
+      "Difficulty": "Hard",
+      "RequiresGlitch": true
     },
     {
       "X": 54207,
@@ -841,6 +840,42 @@
       "Y": 0,
       "Z": 70197,
       "Room": 96
+    },
+    {
+      "X": 14413,
+      "Y": -768,
+      "Z": 21459,
+      "Room": 114,
+      "RequiresGlitch": true
+    },
+    {
+      "X": 10133,
+      "Y": -768,
+      "Z": 39997,
+      "Room": 8,
+      "RequiresGlitch": true
+    },
+    {
+      "X": 1237,
+      "Y": -3584,
+      "Z": 38700,
+      "Room": 9,
+      "Difficulty": "Hard",
+      "RequiresGlitch": true
+    },
+    {
+      "X": 58376,
+      "Y": -10752,
+      "Z": 42039,
+      "Room": 137,
+      "RequiresGlitch": true
+    },
+    {
+      "X": 51148,
+      "Y": -4864,
+      "Z": 21922,
+      "Room": 110,
+      "RequiresGlitch": true
     }
   ],
   "CRASH.TR2": [

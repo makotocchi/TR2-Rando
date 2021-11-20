@@ -3883,6 +3883,36 @@
       "Room": 23
     },
     {
+      "X": 34726,
+      "Y": -18176,
+      "Z": 59510,
+      "Room": 11,
+      "Difficulty": "Hard",
+      "RequiresGlitch": true
+    },
+    {
+      "X": 31630,
+      "Y": -18176,
+      "Z": 59517,
+      "Room": 11,
+      "RequiresGlitch": true
+    },
+    {
+      "X": 37576,
+      "Y": -18154,
+      "Z": 55052,
+      "Room": 16,
+      "RequiresGlitch": true
+    },
+    {
+      "X": 49664,
+      "Y": -14592,
+      "Z": 53760,
+      "Room": 20,
+      "Difficulty": "Hard",
+      "RequiresGlitch": true
+    },
+    {
       "X": 65236,
       "Y": -5170,
       "Z": 57248,

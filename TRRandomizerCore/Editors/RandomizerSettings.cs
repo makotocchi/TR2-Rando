@@ -17,6 +17,7 @@ namespace TRRandomizerCore.Editors
         public bool RandomizeAudio { get; set; }
         public bool RandomizeStartPosition { get; set; }
         public bool RandomizeEnvironment { get; set; }
+        public bool RandomizeSecretRewardsPhysical { get; set; }
 
         public int SecretSeed { get; set; }
         public int ItemSeed { get; set; }
@@ -28,7 +29,12 @@ namespace TRRandomizerCore.Editors
         public int AudioSeed { get; set; }
         public int StartPositionSeed { get; set; }
         public int EnvironmentSeed { get; set; }
+        public int SecretRewardsPhysicalSeed { get; set; }
 
+        // Although stored in the script config, this is needed in case sequencing
+        // mods are needed per level.
+        public bool RandomizeSequencing { get; set; }
+        public GlobeDisplayOption GlobeDisplay { get; set; }
         public bool HardSecrets { get; set; }
         public bool IncludeKeyItems { get; set; }
         public bool DevelopmentMode { get; set; }
@@ -41,6 +47,7 @@ namespace TRRandomizerCore.Editors
         public bool DocileBirdMonsters { get; set; }
         public RandoDifficulty RandoEnemyDifficulty { get; set; }
         public bool GlitchedSecrets { get; set; }
+        public bool UseRewardRoomCameras { get; set; }
         public bool PersistOutfits { get; set; }
         public bool RemoveRobeDagger { get; set; }
         public uint HaircutLevelCount { get; set; }
@@ -68,6 +75,9 @@ namespace TRRandomizerCore.Editors
         public bool AutoLaunchGame { get; set; }
         public bool PuristMode { get; set; }
 
+        public bool RandomizeItemTypes { get; set; }
+        public bool RandomizeItemPositions { get; set; }
+
         public bool DeduplicateTextures => RandomizeTextures || RandomizeNightMode || (RandomizeEnemies && CrossLevelEnemies) || RandomizeOutfits;// || RandomizeEnvironment; // Not needed until trap model import takes place
         public bool ReassignPuzzleNames => RandomizeEnemies && CrossLevelEnemies;
 
@@ -75,15 +85,20 @@ namespace TRRandomizerCore.Editors
         {
             int defaultSeed = int.Parse(DateTime.Now.ToString("yyyyMMdd"));
 
+            GlobeDisplay = (GlobeDisplayOption)config.GetEnum(nameof(GlobeDisplay), typeof(GlobeDisplayOption), GlobeDisplayOption.Area);
+
             RandomizeSecrets = config.GetBool(nameof(RandomizeSecrets));
             SecretSeed = config.GetInt(nameof(SecretSeed), defaultSeed);
             HardSecrets = config.GetBool(nameof(HardSecrets));
             GlitchedSecrets = config.GetBool(nameof(GlitchedSecrets));
+            UseRewardRoomCameras = config.GetBool(nameof(UseRewardRoomCameras));
 
             RandomizeItems = config.GetBool(nameof(RandomizeItems));
             ItemSeed = config.GetInt(nameof(ItemSeed), defaultSeed);
             IncludeKeyItems = config.GetBool(nameof(IncludeKeyItems), true);
             RandoItemDifficulty = (ItemDifficulty)config.GetEnum(nameof(RandoItemDifficulty), typeof(ItemDifficulty), ItemDifficulty.Default);
+            RandomizeItemTypes = config.GetBool(nameof(RandomizeItemTypes));
+            RandomizeItemPositions = config.GetBool(nameof(RandomizeItemPositions));
 
             RandomizeEnemies = config.GetBool(nameof(RandomizeEnemies));
             EnemySeed = config.GetInt(nameof(EnemySeed), defaultSeed);
@@ -142,19 +157,27 @@ namespace TRRandomizerCore.Editors
             DevelopmentMode = config.GetBool(nameof(DevelopmentMode));
             AutoLaunchGame = config.GetBool(nameof(AutoLaunchGame));
             PuristMode = config.GetBool(nameof(PuristMode));
+
+            RandomizeSecretRewardsPhysical = config.GetBool(nameof(RandomizeSecretRewardsPhysical));
+            SecretRewardsPhysicalSeed = config.GetInt(nameof(SecretRewardsPhysicalSeed));
         }
 
         public void StoreConfig(Config config)
         {
+            config[nameof(GlobeDisplay)] = GlobeDisplay;
+
             config[nameof(RandomizeSecrets)] = RandomizeSecrets;
             config[nameof(SecretSeed)] = SecretSeed;
             config[nameof(HardSecrets)] = HardSecrets;
             config[nameof(GlitchedSecrets)] = GlitchedSecrets;
+            config[nameof(UseRewardRoomCameras)] = UseRewardRoomCameras;
 
             config[nameof(RandomizeItems)] = RandomizeItems;
             config[nameof(ItemSeed)] = ItemSeed;
             config[nameof(IncludeKeyItems)] = IncludeKeyItems;
             config[nameof(RandoItemDifficulty)] = RandoItemDifficulty;
+            config[nameof(RandomizeItemTypes)] = RandomizeItemTypes;
+            config[nameof(RandomizeItemPositions)] = RandomizeItemPositions;
 
             config[nameof(RandomizeEnemies)] = RandomizeEnemies;
             config[nameof(EnemySeed)] = EnemySeed;
@@ -212,6 +235,9 @@ namespace TRRandomizerCore.Editors
             config[nameof(DevelopmentMode)] = DevelopmentMode;
             config[nameof(AutoLaunchGame)] = AutoLaunchGame;
             config[nameof(PuristMode)] = PuristMode;
+
+            config[nameof(RandomizeSecretRewardsPhysical)] = RandomizeSecretRewardsPhysical;
+            config[nameof(SecretRewardsPhysicalSeed)] = SecretRewardsPhysicalSeed;
         }
 
         public int GetSaveTarget(int numLevels)

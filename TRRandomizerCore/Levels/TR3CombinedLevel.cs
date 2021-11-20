@@ -62,6 +62,21 @@ namespace TRRandomizerCore.Levels
         public bool HasExposureMeter => Sequence == 16 || Sequence == 17;
 
         /// <summary>
+        /// Whether or not this level is in the sequence of original Coastal Village.
+        /// </summary>
+        public bool IsCoastalSequence => Sequence == 5;
+
+        /// <summary>
+        /// Whether or not this level is in the sequence of original Madubu Gorge.
+        /// </summary>
+        public bool IsMadubuSequence => Sequence == 7;
+
+        /// <summary>
+        /// Whether or not this level is in the sequence of original Sophia.
+        /// </summary>
+        public bool IsSophiaSequence => Sequence == 12;
+
+        /// <summary>
         /// Whether or not this level is in the sequence of original Willard.
         /// </summary>
         public bool IsWillardSequence => Sequence == 19;
@@ -70,5 +85,33 @@ namespace TRRandomizerCore.Levels
         /// Whether or not the game will account for secrets collected in this level.
         /// </summary>
         public bool HasSecrets => Script.NumSecrets > 0;
+
+        /// <summary>
+        /// Get the adventure based on this level's name.
+        /// </summary>
+        public TR3Adventure Adventure
+        {
+            get
+            {
+                if (TR3LevelNames.SouthPacificLevels.Contains(Name))
+                {
+                    return TR3Adventure.SouthPacific;
+                }
+                else if (TR3LevelNames.LondonLevels.Contains(Name))
+                {
+                    return TR3Adventure.London;
+                }
+                else if (TR3LevelNames.NevadaLevels.Contains(Name))
+                {
+                    return TR3Adventure.Nevada;
+                }
+                else if (TR3LevelNames.AntarcticaLevels.Contains(Name))
+                {
+                    return TR3Adventure.Antarctica;
+                }
+
+                return TR3Adventure.India;
+            }
+        }
     }
 }

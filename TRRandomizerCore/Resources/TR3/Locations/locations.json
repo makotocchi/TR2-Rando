@@ -245,8 +245,7 @@
       "Y": -2560,
       "Z": 65960,
       "Room": 50,
-      "RequiresGlitch": true,
-      "Validated": false
+      "RequiresGlitch": true
     },
     {
       "X": 15904,
@@ -325,6 +324,76 @@
       "Y": -7198,
       "Z": 35210,
       "Room": 18
+    },
+    {
+      "X": 40960,
+      "Y": -2322,
+      "Z": 63508,
+      "Room": 2,
+      "Difficulty": "Hard",
+      "RequiresGlitch": true
+    },
+    {
+      "X": 45056,
+      "Y": -3878,
+      "Z": 57265,
+      "Room": 8,
+      "RequiresGlitch": true
+    },
+    {
+      "X": 14852,
+      "Y": 5120,
+      "Z": 49420,
+      "Room": 75,
+      "RequiresGlitch": true
+    },
+    {
+      "X": 31232,
+      "Y": -7936,
+      "Z": 57856,
+      "Room": 153,
+      "Difficulty": "Hard",
+      "RequiresGlitch": true
+    },
+    {
+      "X": 30208,
+      "Y": -7936,
+      "Z": 47616,
+      "Room": 153,
+      "Difficulty": "Hard",
+      "RequiresGlitch": true
+    },
+    {
+      "X": 31232,
+      "Y": -9216,
+      "Z": 35328,
+      "Room": 155,
+      "Difficulty": "Hard",
+      "RequiresGlitch": true
+    },
+    {
+      "X": 4608,
+      "Y": -6656,
+      "Z": 44544,
+      "Room": 137,
+      "Difficulty": "Hard",
+      "RequiresGlitch": true
+    },
+    {
+      "X": 16896,
+      "Y": -7936,
+      "Z": 35328,
+      "Room": 150,
+      "Difficulty": "Hard",
+      "RequiresGlitch": true
+    },
+    {
+      "X": 5632,
+      "Y": -7936,
+      "Z": 34304,
+      "Room": 150,
+      "Difficulty": "Hard",
+      "RequiresGlitch": true
     }
   ],
   "CHAMBER.TR2": [

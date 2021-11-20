@@ -871,11 +871,10 @@
       "RequiresGlitch": true
     },
     {
-      "X": 51148,
-      "Y": -4864,
-      "Z": 21922,
-      "Room": 110,
-      "RequiresGlitch": true
+      "X": 71636,
+      "Y": -3584,
+      "Z": 33466,
+      "Room": 106
     }
   ],
   "CRASH.TR2": [

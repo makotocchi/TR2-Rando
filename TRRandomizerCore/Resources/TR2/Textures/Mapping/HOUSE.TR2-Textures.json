@@ -449,12 +449,6 @@
         "Y": 192
       },
       {
-        "Segment": 1,
-        "Tile": 4,
-        "X": 192,
-        "Y": 192
-      },
-      {
         "Segment": 2,
         "Tile": 5,
         "X": 192,
@@ -466,8 +460,8 @@
       {
         "Segment": 0,
         "Tile": 5,
-        "X": 0,
-        "Y": 128
+        "X": 128,
+        "Y": 64
       }
     ],
 
@@ -837,14 +831,14 @@
 
     "Secrets": [
       {
-        "Segment": 0,
+        "Segment": 1,
         "Clear": true,
         "Tile": 8,
         "X": 44,
         "Y": 56
       },
       {
-        "Segment": 1,
+        "Segment": 0,
         "Clear": true,
         "Tile": 8,
         "X": 89,

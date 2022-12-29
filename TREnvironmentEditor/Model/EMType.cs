@@ -8,6 +8,7 @@
         Flood = 2,
         Drain = 3,
         Ceiling = 4,
+        Click = 5,
 
         // Texture types 21-40
         Reface = 21,
@@ -16,6 +17,8 @@
         AddStaticMesh = 24,
         RemoveStaticMesh = 25,
         AddFace = 26,
+        MirrorStaticMesh = 27,
+        MirrorObjectTexture = 28,
 
         // Entity types 41-60
         MoveSlot = 41,
@@ -29,6 +32,7 @@
         SwapSlot = 49,
         AdjustEntityPositions = 50,
         AddEntity = 51,
+        ConvertWheelDoor = 52,
 
         // Trigger types 61-80
         Trigger = 61,
@@ -39,11 +43,15 @@
         ReplaceTriggerActionParameterFunction = 66,
         MoveTrigger = 67,
         AppendTriggerActionFunction = 68,
+        ConvertTrigger = 69,
+        KillLara = 70,
+        RemoveTriggerAction = 71,
 
         // Portal types 81-100
         VisibilityPortal = 81,
         HorizontalCollisionalPortal = 82,
         VerticalCollisionalPortal = 83,
+        AdjustVisibilityPortal = 84,
 
         // Sound types 101-120
         AddSoundSource = 101,
@@ -55,9 +63,13 @@
         ModifyOverlaps = 122,
         CopyRoom = 123,
         CopyVertexAttributes = 124,
+        ImportRoom = 125,
 
         // Models
         ImportModel = 141,
+        MirrorModel = 142,
+        ConvertSpriteSequence = 143,
+        ConvertModel = 144,
 
         // NOOP/Placeholder
         NOOP = 1000

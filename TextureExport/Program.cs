@@ -81,7 +81,7 @@ namespace TextureExport
             }
             else if (levelType == "tr1")
             {
-                foreach (string lvl in TRLevelNames.AsListWithAssault)
+                foreach (string lvl in TRLevelNames.AsOrderedList)
                 {
                     if (File.Exists(lvl))
                     {
@@ -111,7 +111,7 @@ namespace TextureExport
             }
             else if (levelType == "tr3")
             {
-                foreach (string lvl in TR3LevelNames.AsListWithAssault)
+                foreach (string lvl in TR3LevelNames.AsOrderedList)
                 {
                     if (File.Exists(lvl))
                     {
@@ -131,7 +131,7 @@ namespace TextureExport
             }
             else
             {
-                foreach (string lvl in TR2LevelNames.AsListWithAssault)
+                foreach (string lvl in TR2LevelNames.AsOrderedList)
                 {
                     if (File.Exists(lvl))
                     {
@@ -158,6 +158,12 @@ namespace TextureExport
                     break;
                 case Mode.Html:
                     HtmlExporter.Export(inst, lvl);
+                    break;
+                case Mode.Faces:
+                    FaceMapper.DrawFaces(inst, lvl, GetRoomArgs());
+                    break;
+                case Mode.Dependencies:
+                    DependencyExporter.Export(inst, lvl);
                     break;
                 default:
                     Console.WriteLine("{0} mode is not supported for TR1.", mode);

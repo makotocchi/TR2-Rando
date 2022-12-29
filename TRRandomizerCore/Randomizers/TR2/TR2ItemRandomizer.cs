@@ -2,15 +2,18 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using TRRandomizerCore.Helpers;
-using TRRandomizerCore.Utilities;
-using TRRandomizerCore.Zones;
+using TRFDControl;
+using TRFDControl.Utilities;
 using TRGE.Core;
 using TRLevelReader.Helpers;
 using TRLevelReader.Model;
 using TRLevelReader.Model.Enums;
 using TRModelTransporter.Packing;
 using TRModelTransporter.Transport;
+using TRRandomizerCore.Helpers;
+using TRRandomizerCore.Textures;
+using TRRandomizerCore.Utilities;
+using TRRandomizerCore.Zones;
 
 namespace TRRandomizerCore.Randomizers
 {
@@ -18,12 +21,14 @@ namespace TRRandomizerCore.Randomizers
     {
         private static readonly List<int> _devRooms = null;
 
-        internal TexturePositionMonitorBroker TextureMonitor { get; set; }
+        internal TR2TextureMonitorBroker TextureMonitor { get; set; }
 
         // This replaces plane cargo index as TRGE may have randomized the weaponless level(s), but will also have injected pistols
         // into predefined locations. See FindUnarmedPistolsLocation below.
         private int _unarmedLevelPistolIndex;
         private readonly Dictionary<string, List<Location>> _pistolLocations;
+
+        private ItemSpriteRandomizer<TR2Entities> _spriteRandomizer;
 
         public TR2ItemRandomizer()
         {
@@ -46,7 +51,18 @@ namespace TRRandomizerCore.Randomizers
                 //Apply the modifications
                 RepositionItems(locations[_levelInstance.Name]);
 
+                if (Settings.RandomizeItemTypes)
+                    RandomizeItemTypes();
+
+                if (Settings.RandoItemDifficulty == ItemDifficulty.OneLimit)
+                    EnforceOneLimit();
+
                 RandomizeVehicles();
+
+                RandomizeSeraph();
+
+               // if (Settings.RandomizeItemSprites)
+                 //   RandomizeSprites();
 
                 //Write back the level file
                 SaveLevelInstance();
@@ -54,6 +70,181 @@ namespace TRRandomizerCore.Randomizers
                 if (!TriggerProgress())
                 {
                     break;
+                }
+            }
+        }
+
+        public void RandomizeLevelsSprites()
+        {
+           
+            foreach (TR2ScriptedLevel lvl in Levels)
+            {
+                //Read the level into a combined data/script level object
+                LoadLevelInstance(lvl);
+               
+                RandomizeSprites();
+
+                //Write back the level file
+                SaveLevelInstance();
+
+                if (!TriggerProgress())
+                {
+                    break;
+                }
+            }
+
+        }
+
+
+        private void RandomizeSprites()
+        {
+            // If the _spriteRandomizer doesn't exists it gets fed all the settings of the rando and Lists of the game once. 
+            if (_spriteRandomizer == null)
+            {
+
+                _spriteRandomizer = new ItemSpriteRandomizer<TR2Entities>
+                {
+                    StandardItemTypes = TR2EntityUtilities.GetListOfGunTypes().Concat(TR2EntityUtilities.GetListOfAmmoTypes()).ToList(),
+                    KeyItemTypes = TR2EntityUtilities.GetListOfKeyItemTypes(),
+                    SecretItemTypes = TR2EntityUtilities.GetListOfSecretTypes(),
+                    RandomizeKeyItemSprites = Settings.RandomizeKeyItemSprites,
+                    RandomizeSecretSprites = Settings.RandomizeSecretSprites,
+                    Mode = Settings.SpriteRandoMode
+                };
+#if DEBUG
+                _spriteRandomizer.TextureChanged += (object sender, SpriteEventArgs<TR2Entities> e) =>
+                {
+                    System.Diagnostics.Debug.WriteLine(string.Format("{0}: {1} => {2}", _levelInstance.Name, e.OldSprite, e.NewSprite));
+                };
+#endif
+            }
+
+            // The _spriteRandomizer exists so it gets all the SpriteSquence and SpriteTexture from the level
+            // We cannot pass the level itself as ItemSpriteRandomizer is a shared class 
+            _spriteRandomizer.Sequences = _levelInstance.Data.SpriteSequences.ToList();
+            _spriteRandomizer.Textures = _levelInstance.Data.SpriteTextures.ToList();
+
+            //Calling the actual randomization
+            _spriteRandomizer.Randomize(_generator);
+
+            // Only the SpriteTexture needs to be rewritten 
+            _levelInstance.Data.SpriteTextures = _spriteRandomizer.Textures.ToArray();
+        }
+
+        /// <summary>
+        /// If Deck is before monastery Nothing happens... 
+        /// If monastery is before deck the Seraph becomes a pickup in monastery and the Deck finishes normally without Seraph pickup
+        /// We are mindfull of Tibet inventory forcing Seraph in Vanilla and leave it only when it has been picked up previously
+        /// </summary>
+        private void RandomizeSeraph()
+        {
+            bool SeraphInMonastery = false;
+
+            //List of pickup items
+            List<TR2Entities> stdItemTypes = TR2EntityUtilities.GetListOfGunTypes();
+            stdItemTypes.AddRange(TR2EntityUtilities.GetListOfAmmoTypes());
+
+            if (_levelInstance.Is(TR2LevelNames.MONASTERY))
+            {
+                TR2ScriptedLevel theDeck = Levels.Find(l => l.Is(TR2LevelNames.DECK));
+
+                Location loc = null;
+
+                // if The deck is included in levels I check if its after monastery 
+                if (theDeck != null)
+                {
+                    if (theDeck.Sequence > _levelInstance.Sequence) SeraphInMonastery = true;
+                }
+                else // Id Deck is not included we force the seraph in monastery
+                {
+                    SeraphInMonastery = true;
+                }
+
+                if (SeraphInMonastery)
+                {
+                    // Get all visible pickups in the level (there may be invisible ones if using OneItem mode)
+                    List<TR2Entity> entities = _levelInstance.Data.Entities.ToList();
+                    List<TR2Entity> pickups = entities.FindAll(e => !e.Invisible && stdItemTypes.Contains((TR2Entities)e.TypeID));
+                    List<TR2Entity> replacementCandidates = new List<TR2Entity>(pickups);
+
+                    // Eliminate any that share a tile with an enemy in case of pacifist runs/unable to find guns
+                    FDControl floorData = new FDControl();
+                    floorData.ParseFromLevel(_levelInstance.Data);
+                    for (int i = replacementCandidates.Count - 1; i >= 0; i--)
+                    {
+                        TR2Entity pickup = replacementCandidates[i];
+                        TRRoomSector pickupTile = FDUtilities.GetRoomSector(pickup.X, pickup.Y, pickup.Z, pickup.Room, _levelInstance.Data, floorData);
+                        // Does an enemy share this tile? If so, remove it from the candidate list
+                        if (entities.Find(e => e != pickup
+                            && TR2EntityUtilities.IsEnemyType((TR2Entities)e.TypeID)
+                            && FDUtilities.GetRoomSector(e.X, e.Y, e.Z, e.Room, _levelInstance.Data, floorData) == pickupTile) != null)
+                        {
+                            replacementCandidates.RemoveAt(i);
+                        }
+                    }
+
+                    TR2Entity entityToReplace;
+                    if (replacementCandidates.Count > 0)
+                    {
+                        // We have at least one pickup that's visible and not under an enemy, so pick one at random
+                        entityToReplace = replacementCandidates[_generator.Next(0, replacementCandidates.Count)];
+                    }
+                    else
+                    {
+                        // We couldn't find anything, but because The Deck has been processed first, we should
+                        // add The Seraph somewhere to remain consistent - default to the puzzle slot itself and
+                        // just move an item to the same tile. This will be extremely rare.
+                        TR2Entity slot4 = entities.Find(e => e.TypeID == (short)TR2Entities.PuzzleHole4);
+                        entityToReplace = pickups[_generator.Next(0, pickups.Count)];
+                        entityToReplace.X = slot4.X;
+                        entityToReplace.Y = slot4.Y;
+                        entityToReplace.Z = slot4.Z;
+                        entityToReplace.Room = slot4.Room;
+                    }
+
+                    // Change the pickup type to The Seraph, and remove The Seraph from the inventory
+                    entityToReplace.TypeID = (short)TR2Entities.Puzzle4_S_P;
+                    _levelInstance.Script.RemoveStartInventoryItem(TRGE.Core.Item.Enums.TR2Items.Puzzle4);
+                }
+            }
+            else if (_levelInstance.Is(TR2LevelNames.TIBET))
+            {
+                TR2ScriptedLevel deck = Levels.Find(l => l.Is(TR2LevelNames.DECK));
+                TR2ScriptedLevel monastery = Levels.Find(l => l.Is(TR2LevelNames.MONASTERY));
+
+                // Deck not present => Barkhang pickup and used instant (if it's not present its never picked up anyway)
+                // Deck present but Barkhang absent => Seraph picked up at Deck and never consumed
+                // Deck and Barkhang presents => remove Seraph from Tibet if comes before deck or after barkhang
+                if (deck == null ||
+                   (monastery == null && _levelInstance.Script.Sequence < deck.Sequence) ||
+                   (monastery != null && (_levelInstance.Script.Sequence < deck.Sequence || _levelInstance.Script.Sequence < monastery.Sequence)))
+                {
+                    _levelInstance.Script.RemoveStartInventoryItem(TRGE.Core.Item.Enums.TR2Items.Puzzle4);
+                }
+            }
+            else if (_levelInstance.Is(TR2LevelNames.DECK))
+            {
+                TR2ScriptedLevel monastery = Levels.Find(l => l.Is(TR2LevelNames.MONASTERY));
+
+                if (monastery != null)
+                {
+                    if (monastery.Sequence < _levelInstance.Sequence) SeraphInMonastery = true;
+                }
+                else // Id Monastery is not included we stay as before
+                {
+                    SeraphInMonastery = false;
+                }
+
+                if (SeraphInMonastery)
+                {
+                    //Replace Seraph by a pickup 
+
+                    TR2Entity seraph = _levelInstance.Data.Entities.ToList().Find(e => e.TypeID == (short)TR2Entities.Puzzle4_S_P);
+
+                    if (seraph != null)
+                    {
+                        seraph.TypeID = (short)stdItemTypes[_generator.Next(0, stdItemTypes.Count)];
+                    }
                 }
             }
         }
@@ -129,13 +320,22 @@ namespace TRRandomizerCore.Randomizers
             if (ItemLocs.Count > 0)
             {
                 //We are currently looking guns + ammo
-                List<TR2Entities> targetents = TR2EntityUtilities.GetListOfGunTypes();
-                targetents.AddRange(TR2EntityUtilities.GetListOfAmmoTypes());
+                List<TR2Entities> targetents = new List<TR2Entities>();
+                if (Settings.RandomizeItemPositions)
+                {
+                    targetents.AddRange(TR2EntityUtilities.GetListOfGunTypes());
+                    targetents.AddRange(TR2EntityUtilities.GetListOfAmmoTypes());
+                }
 
                 //And also key items...
                 if (Settings.IncludeKeyItems)
                 {
                     targetents.AddRange(TR2EntityUtilities.GetListOfKeyItemTypes());
+                }
+
+                if (targetents.Count == 0)
+                {
+                    return;
                 }
 
                 //It's important to now start zoning key items as softlocks must be avoided.
@@ -330,27 +530,54 @@ namespace TRRandomizerCore.Randomizers
                         }
                     }
                 }
+            }
+        }
 
-                if (Settings.RandoItemDifficulty == ItemDifficulty.OneLimit)
+        private void RandomizeItemTypes()
+        {
+            if (_levelInstance.IsAssault || _levelInstance.Is(TR2LevelNames.HOME))
+            {
+                return;
+            }
+
+            List<TR2Entities> stdItemTypes = TR2EntityUtilities.GetListOfGunTypes();
+            stdItemTypes.AddRange(TR2EntityUtilities.GetListOfAmmoTypes());
+
+            for (int i = 0; i < _levelInstance.Data.NumEntities; i++)
+            {
+                TR2Entity entity = _levelInstance.Data.Entities[i];
+                TR2Entities currentType = (TR2Entities)entity.TypeID;
+
+                if (i == _unarmedLevelPistolIndex)
                 {
-                    List<TR2Entities> oneOfEachType = new List<TR2Entities>();
-                    List<TR2Entity> allEntities = _levelInstance.Data.Entities.ToList();
+                    // Handled separately in RandomizeAmmo
+                    continue;
+                }
+                else if (stdItemTypes.Contains(currentType))
+                {
+                    entity.TypeID = (short)stdItemTypes[_generator.Next(0, stdItemTypes.Count)];
+                }
+            }
+        }
 
-                    // look for extra utility/ammo items and hide them
-                    foreach (TR2Entity ent in allEntities)
+        private void EnforceOneLimit()
+        {
+            List<TR2Entities> oneOfEachType = new List<TR2Entities>();
+            List<TR2Entity> allEntities = _levelInstance.Data.Entities.ToList();
+
+            // look for extra utility/ammo items and hide them
+            foreach (TR2Entity ent in allEntities)
+            {
+                TR2Entities eType = (TR2Entities)ent.TypeID;
+                if (TR2EntityUtilities.IsUtilityType(eType) ||
+                    TR2EntityUtilities.IsGunType(eType))
+                {
+                    if (oneOfEachType.Contains(eType))
                     {
-                        TR2Entities eType = (TR2Entities)ent.TypeID;
-                        if (TR2EntityUtilities.IsUtilityType(eType) ||
-                            TR2EntityUtilities.IsGunType(eType))
-                        {
-                            if (oneOfEachType.Contains(eType))
-                            {
-                                ItemUtilities.HideEntity(ent);
-                            }
-                            else
-                                oneOfEachType.Add((TR2Entities)ent.TypeID);
-                        }
+                        ItemUtilities.HideEntity(ent);
                     }
+                    else
+                        oneOfEachType.Add((TR2Entities)ent.TypeID);
                 }
             }
         }
@@ -620,7 +847,10 @@ namespace TRRandomizerCore.Randomizers
 
             List<TR2Entity> levelEntities = _levelInstance.Data.Entities.ToList();
             int entityLimit = _levelInstance.GetMaximumEntityLimit();
-            if (vehicles.Count == 0 || vehicles.Count + levelEntities.Count > entityLimit)
+
+            TR2Entity[] boatToMove = Array.FindAll(_levelInstance.Data.Entities, e => e.TypeID == (short)TR2Entities.Boat);
+
+            if (vehicles.Count == 0 || vehicles.Count - boatToMove.Count() + levelEntities.Count > entityLimit)
             {
                 return;
             }
@@ -635,10 +865,12 @@ namespace TRRandomizerCore.Randomizers
                 TexturePositionMonitor = TextureMonitor.CreateMonitor(_levelInstance.Name, vehicles.Keys.ToList())
             };
 
+
             try
             {
                 importer.Import();
 
+                // looping on boats and or skidoo
                 foreach (TR2Entities entity in vehicles.Keys)
                 {
                     if (levelEntities.Count == entityLimit)
@@ -647,18 +879,77 @@ namespace TRRandomizerCore.Randomizers
                     }
 
                     Location location = vehicles[entity];
-                    levelEntities.Add(new TR2Entity
+
+                    if (entity == TR2Entities.Boat)
                     {
-                        TypeID = (short)entity,
-                        Room = (short)location.Room,
-                        X = location.X,
-                        Y = location.Y,
-                        Z = location.Z,
-                        Angle = location.Angle,
-                        Flags = 0,
-                        Intensity1 = -1,
-                        Intensity2 = -1
-                    });
+                        location = RoomWaterUtilities.MoveToTheSurface(location, _levelInstance.Data);
+                    }
+
+                    if (boatToMove.Count() == 0)
+                    {
+                        //Creation new entity
+                        levelEntities.Add(new TR2Entity
+                        {
+                            TypeID = (short)entity,
+                            Room = (short)location.Room,
+                            X = location.X,
+                            Y = location.Y,
+                            Z = location.Z,
+                            Angle = location.Angle,
+                            Flags = 0,
+                            Intensity1 = -1,
+                            Intensity2 = -1
+                        });
+                    }
+                    else
+                    {
+                        //I am in a level with 1 or 2 boat(s) to move
+                        for (int i = 0; i < boatToMove.Count(); i++)
+                        {
+                            if (i == 0) // for the first one i take the vehicle value
+                            {
+                                TR2Entity boat = boatToMove[i];
+
+                                boat.Room = (short)location.Room;
+                                boat.X = location.X;
+                                boat.Y = location.Y;
+                                boat.Z = location.Z;
+                                boat.Angle = location.Angle;
+                                boat.Flags = 0;
+                                boat.Intensity1 = -1;
+                                boat.Intensity2 = -1;
+
+                            }
+                            else // I have to find another location that is different
+                            {
+                                Location location2ndBoat = vehicles[entity];
+                                int checkCount = 0;
+                                while (location2ndBoat.IsTheSame(vehicles[entity]) && checkCount < 5)//compare locations in bottom of water ( authorize 5 round max in case there is only 1 valid location)
+                                {
+                                    location2ndBoat = VehicleUtilities.GetRandomLocation(_levelInstance, TR2Entities.Boat, _generator, false);
+                                    checkCount++;
+                                }
+
+                                if (checkCount < 5)// If i actually found a different location I proceed (if not vanilla location it is) 
+                                {
+                                    location2ndBoat = RoomWaterUtilities.MoveToTheSurface(location2ndBoat, _levelInstance.Data);
+
+                                    TR2Entity boat2 = boatToMove[i];
+
+                                    boat2.Room = (short)location2ndBoat.Room;
+                                    boat2.X = location2ndBoat.X;
+                                    boat2.Y = location2ndBoat.Y;
+                                    boat2.Z = location2ndBoat.Z;
+                                    boat2.Angle = location2ndBoat.Angle;
+                                    boat2.Flags = 0;
+                                    boat2.Intensity1 = -1;
+                                    boat2.Intensity2 = -1;
+                                }
+
+                            }
+
+                        }
+                    }
                 }
 
                 if (levelEntities.Count > _levelInstance.Data.NumEntities)
@@ -673,9 +964,14 @@ namespace TRRandomizerCore.Randomizers
             }
         }
 
+        /// <summary>
+        /// Populate (or add in) the locationMap with a random location designed for the specific entity type in parameter
+        /// </summary>
+        /// <param name="entity">Type of the entity <see cref="TR2Entities"/></param>
+        /// <param name="locationMap">Dictionnary EntityType/location </param>
         private void PopulateVehicleLocation(TR2Entities entity, Dictionary<TR2Entities, Location> locationMap)
         {
-            Location location = VehicleUtilities.GetRandomLocation(_levelInstance.Name, entity, _generator);
+            Location location = VehicleUtilities.GetRandomLocation(_levelInstance, entity, _generator);
             if (location != null)
             {
                 locationMap[entity] = location;

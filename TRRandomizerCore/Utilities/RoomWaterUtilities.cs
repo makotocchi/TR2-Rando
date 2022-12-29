@@ -1,5 +1,9 @@
 ﻿using System.Collections.Generic;
+using TRFDControl;
+using TRFDControl.Utilities;
 using TRLevelReader.Helpers;
+using TRLevelReader.Model;
+using TRRandomizerCore.Helpers;
 
 namespace TRRandomizerCore.Utilities
 {
@@ -101,6 +105,23 @@ namespace TRRandomizerCore.Utilities
 
         public static Dictionary<string, int> DefaultRoomCountDictionary = new Dictionary<string, int>
         {
+            { TRLevelNames.CAVES, 38 },
+            { TRLevelNames.VILCABAMBA, 94 },
+            { TRLevelNames.VALLEY, 91 },
+            { TRLevelNames.QUALOPEC, 54 },
+            { TRLevelNames.FOLLY, 63 },
+            { TRLevelNames.COLOSSEUM, 89 },
+            { TRLevelNames.MIDAS, 79 },
+            { TRLevelNames.CISTERN, 139 },
+            { TRLevelNames.TIHOCAN, 114 },
+            { TRLevelNames.KHAMOON, 71 },
+            { TRLevelNames.OBELISK, 84 },
+            { TRLevelNames.SANCTUARY, 64 },
+            { TRLevelNames.MINES, 108 },
+            { TRLevelNames.ATLANTIS, 101 },
+            { TRLevelNames.PYRAMID, 67 },
+            { TRLevelNames.ASSAULT, 18 },
+
             { TR3LevelNames.JUNGLE, 165 },
             { TR3LevelNames.RUINS, 224 },
             { TR3LevelNames.GANGES, 177 },
@@ -123,5 +144,32 @@ namespace TRRandomizerCore.Utilities
             { TR3LevelNames.HALLOWS, 68 },
             { TR3LevelNames.ASSAULT, 133 }
         };
+
+        /// <summary>
+        /// Take a location in a level and move it up until it is at the surface of water if it exists
+        /// </summary>
+        /// <param name="location">Location <see cref="Location"/></param>
+        /// <param name="level">Level <see cref="TR2Level"/></param>
+        /// <returns></returns>
+        public static Location MoveToTheSurface(Location location, TR2Level level)
+        {
+            FDControl floorData = new FDControl();
+            floorData.ParseFromLevel(level);
+            // Make sure the boat is just on the water surface
+            while (level.Rooms[location.Room].ContainsWater)
+            {
+                // Get the room above this sector
+                TRRoomSector sector = FDUtilities.GetRoomSector(location.X, location.Y, location.Z, (short)location.Room, level, floorData);
+                if (sector.RoomAbove == byte.MaxValue)
+                {
+                    break;
+                }
+                // Put the boat at the bottom of the room above
+                location.Y = level.Rooms[sector.RoomAbove].Info.YBottom;
+                location.Room = sector.RoomAbove;
+            }
+            return location;
+
+        }
     }
 }

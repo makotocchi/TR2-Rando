@@ -10,13 +10,15 @@ namespace TREnvironmentEditor.Model.Types
         public EMFaceModification[] Modifications { get; set; }
         public EMFaceRotation[] Rotations { get; set; }
 
-        public override void ApplyToLevel(TR2Level level)
+        public override void ApplyToLevel(TRLevel level)
         {
+            EMLevelData data = GetData(level);
+
             if (Modifications != null)
             {
                 foreach (EMFaceModification mod in Modifications)
                 {
-                    TR2Room room = level.Rooms[ConvertItemNumber(mod.RoomNumber, level.NumRooms)];
+                    TRRoom room = level.Rooms[data.ConvertRoom(mod.RoomNumber)];
                     switch (mod.FaceType)
                     {
                         case EMTextureFaceType.Rectangles:
@@ -33,7 +35,46 @@ namespace TREnvironmentEditor.Model.Types
             {
                 foreach (EMFaceRotation rot in Rotations)
                 {
-                    TR2Room room = level.Rooms[ConvertItemNumber(rot.RoomNumber, level.NumRooms)];
+                    TRRoom room = level.Rooms[data.ConvertRoom(rot.RoomNumber)];
+                    switch (rot.FaceType)
+                    {
+                        case EMTextureFaceType.Rectangles:
+                            RotateRectangles(room.RoomData.Rectangles, rot);
+                            break;
+                        case EMTextureFaceType.Triangles:
+                            RotateTriangles(room.RoomData.Triangles, rot);
+                            break;
+                    }
+                }
+            }
+        }
+
+        public override void ApplyToLevel(TR2Level level)
+        {
+            EMLevelData data = GetData(level);
+
+            if (Modifications != null)
+            {
+                foreach (EMFaceModification mod in Modifications)
+                {
+                    TR2Room room = level.Rooms[data.ConvertRoom(mod.RoomNumber)];
+                    switch (mod.FaceType)
+                    {
+                        case EMTextureFaceType.Rectangles:
+                            ModifyRectangles(room, mod);
+                            break;
+                        case EMTextureFaceType.Triangles:
+                            ModifyTriangles(room, mod);
+                            break;
+                    }
+                }
+            }
+
+            if (Rotations != null)
+            {
+                foreach (EMFaceRotation rot in Rotations)
+                {
+                    TR2Room room = level.Rooms[data.ConvertRoom(rot.RoomNumber)];
                     switch (rot.FaceType)
                     {
                         case EMTextureFaceType.Rectangles:
@@ -49,11 +90,13 @@ namespace TREnvironmentEditor.Model.Types
 
         public override void ApplyToLevel(TR3Level level)
         {
+            EMLevelData data = GetData(level);
+
             if (Modifications != null)
             {
                 foreach (EMFaceModification mod in Modifications)
                 {
-                    TR3Room room = level.Rooms[ConvertItemNumber(mod.RoomNumber, level.NumRooms)];
+                    TR3Room room = level.Rooms[data.ConvertRoom(mod.RoomNumber)];
                     switch (mod.FaceType)
                     {
                         case EMTextureFaceType.Rectangles:
@@ -70,7 +113,7 @@ namespace TREnvironmentEditor.Model.Types
             {
                 foreach (EMFaceRotation rot in Rotations)
                 {
-                    TR3Room room = level.Rooms[ConvertItemNumber(rot.RoomNumber, level.NumRooms)];
+                    TR3Room room = level.Rooms[data.ConvertRoom(rot.RoomNumber)];
                     switch (rot.FaceType)
                     {
                         case EMTextureFaceType.Rectangles:
@@ -82,6 +125,26 @@ namespace TREnvironmentEditor.Model.Types
                     }
                 }
             }
+        }
+
+        private void ModifyRectangles(TRRoom room, EMFaceModification mod)
+        {
+            TRFace4 rect = room.RoomData.Rectangles[mod.FaceIndex];
+            List<TRRoomVertex> allVertices = room.RoomData.Vertices.ToList();
+            foreach (int vertIndex in mod.VertexChanges.Keys)
+            {
+                TRRoomVertex currentRoomVertex = allVertices[rect.Vertices[vertIndex]];
+                TRVertex newVertex = mod.VertexChanges[vertIndex];
+                TRRoomVertex newRoomVertex = GenerateRoomVertex(currentRoomVertex, newVertex);
+
+                // Remap the face to use this vertex
+                rect.Vertices[vertIndex] = (ushort)allVertices.Count;
+                allVertices.Add(newRoomVertex);
+            }
+
+            room.RoomData.Vertices = allVertices.ToArray();
+            room.RoomData.NumVertices = (short)allVertices.Count;
+            room.NumDataWords = (uint)(room.RoomData.Serialize().Length / 2);
         }
 
         private void ModifyRectangles(TR2Room room, EMFaceModification mod)
@@ -116,6 +179,26 @@ namespace TREnvironmentEditor.Model.Types
 
                 // Remap the face to use this vertex
                 rect.Vertices[vertIndex] = (ushort)allVertices.Count;
+                allVertices.Add(newRoomVertex);
+            }
+
+            room.RoomData.Vertices = allVertices.ToArray();
+            room.RoomData.NumVertices = (short)allVertices.Count;
+            room.NumDataWords = (uint)(room.RoomData.Serialize().Length / 2);
+        }
+
+        private void ModifyTriangles(TRRoom room, EMFaceModification mod)
+        {
+            TRFace3 tri = room.RoomData.Triangles[mod.FaceIndex];
+            List<TRRoomVertex> allVertices = room.RoomData.Vertices.ToList();
+            foreach (int vertIndex in mod.VertexChanges.Keys)
+            {
+                TRRoomVertex currentRoomVertex = allVertices[tri.Vertices[vertIndex]];
+                TRVertex newVertex = mod.VertexChanges[vertIndex];
+                TRRoomVertex newRoomVertex = GenerateRoomVertex(currentRoomVertex, newVertex);
+
+                // Remap the face to use this vertex
+                tri.Vertices[vertIndex] = (ushort)allVertices.Count;
                 allVertices.Add(newRoomVertex);
             }
 
@@ -162,6 +245,23 @@ namespace TREnvironmentEditor.Model.Types
             room.RoomData.Vertices = allVertices.ToArray();
             room.RoomData.NumVertices = (short)allVertices.Count;
             room.NumDataWords = (uint)(room.RoomData.Serialize().Length / 2);
+        }
+
+        private TRRoomVertex GenerateRoomVertex(TRRoomVertex currentRoomVertex, TRVertex newVertex)
+        {
+            // We create a new vertex because we can't guarantee nothing else is using it.
+            // Note the vertex values in the mod are added to the existing values, so we
+            // don't have to define those we aren't changing.
+            return new TRRoomVertex
+            {
+                Lighting = currentRoomVertex.Lighting,
+                Vertex = new TRVertex
+                {
+                    X = (short)(currentRoomVertex.Vertex.X + newVertex.X),
+                    Y = (short)(currentRoomVertex.Vertex.Y + newVertex.Y),
+                    Z = (short)(currentRoomVertex.Vertex.Z + newVertex.Z)
+                }
+            };
         }
 
         private TR2RoomVertex GenerateRoomVertex(TR2RoomVertex currentRoomVertex, TRVertex newVertex)

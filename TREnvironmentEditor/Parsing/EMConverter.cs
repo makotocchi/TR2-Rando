@@ -11,8 +11,11 @@ namespace TREnvironmentEditor.Parsing
     {
         private static readonly JsonSerializerSettings _resolver = new JsonSerializerSettings
         {
-            ContractResolver = new EMResolver()
+            ContractResolver = new EMDeserializationResolver()
         };
+
+        private static readonly string _emTypeName = "EMType";
+        private static readonly string _conditionTypeName = "ConditionType";
 
         public override bool CanConvert(Type objectType)
         {
@@ -22,11 +25,11 @@ namespace TREnvironmentEditor.Parsing
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
             JObject jo = JObject.Load(reader);
-            if (jo["EMType"] != null)
+            if (jo[_emTypeName] != null)
             {
                 return ReadEMType(jo);
             }
-            else if (jo["ConditionType"] != null)
+            else if (jo[_conditionTypeName] != null)
             {
                 return ReadConditionType(jo);
             }
@@ -36,7 +39,7 @@ namespace TREnvironmentEditor.Parsing
 
         private object ReadEMType(JObject jo)
         {
-            EMType type = (EMType)jo["EMType"].Value<int>();
+            EMType type = (EMType)jo[_emTypeName].Value<int>();
             switch (type)
             {
                 // Surface types
@@ -50,6 +53,8 @@ namespace TREnvironmentEditor.Parsing
                     return JsonConvert.DeserializeObject<EMDrainFunction>(jo.ToString(), _resolver);
                 case EMType.Ceiling:
                     return JsonConvert.DeserializeObject<EMCeilingFunction>(jo.ToString(), _resolver);
+                case EMType.Click:
+                    return JsonConvert.DeserializeObject<EMClickFunction>(jo.ToString(), _resolver);
 
                 // Texture types
                 case EMType.Reface:
@@ -64,6 +69,10 @@ namespace TREnvironmentEditor.Parsing
                     return JsonConvert.DeserializeObject<EMRemoveStaticMeshFunction>(jo.ToString(), _resolver);
                 case EMType.AddFace:
                     return JsonConvert.DeserializeObject<EMAddFaceFunction>(jo.ToString(), _resolver);
+                case EMType.MirrorStaticMesh:
+                    return JsonConvert.DeserializeObject<EMMirrorStaticMeshFunction>(jo.ToString(), _resolver);
+                case EMType.MirrorObjectTexture:
+                    return JsonConvert.DeserializeObject<EMMirrorObjectTexture>(jo.ToString(), _resolver);
 
                 // Entity types
                 case EMType.MoveSlot:
@@ -88,6 +97,8 @@ namespace TREnvironmentEditor.Parsing
                     return JsonConvert.DeserializeObject<EMAdjustEntityPositionFunction>(jo.ToString(), _resolver);
                 case EMType.AddEntity:
                     return JsonConvert.DeserializeObject<EMAddEntityFunction>(jo.ToString(), _resolver);
+                case EMType.ConvertWheelDoor:
+                    return JsonConvert.DeserializeObject<EMConvertWheelDoorFunction>(jo.ToString(), _resolver);
 
                 // Trigger types
                 case EMType.Trigger:
@@ -106,6 +117,12 @@ namespace TREnvironmentEditor.Parsing
                     return JsonConvert.DeserializeObject<EMMoveTriggerFunction>(jo.ToString(), _resolver);
                 case EMType.AppendTriggerActionFunction:
                     return JsonConvert.DeserializeObject<EMAppendTriggerActionFunction>(jo.ToString(), _resolver);
+                case EMType.ConvertTrigger:
+                    return JsonConvert.DeserializeObject<EMConvertTriggerFunction>(jo.ToString(), _resolver);
+                case EMType.KillLara:
+                    return JsonConvert.DeserializeObject<EMKillLaraFunction>(jo.ToString(), _resolver);
+                case EMType.RemoveTriggerAction:
+                    return JsonConvert.DeserializeObject<EMRemoveTriggerActionFunction>(jo.ToString(), _resolver);
 
                 // Portals
                 case EMType.VisibilityPortal:
@@ -114,6 +131,8 @@ namespace TREnvironmentEditor.Parsing
                     return JsonConvert.DeserializeObject<EMHorizontalCollisionalPortalFunction>(jo.ToString(), _resolver);
                 case EMType.VerticalCollisionalPortal:
                     return JsonConvert.DeserializeObject<EMVerticalCollisionalPortalFunction>(jo.ToString(), _resolver);
+                case EMType.AdjustVisibilityPortal:
+                    return JsonConvert.DeserializeObject<EMAdjustVisibilityPortalFunction>(jo.ToString(), _resolver);
 
                 // Sounds
                 case EMType.AddSoundSource:
@@ -132,9 +151,18 @@ namespace TREnvironmentEditor.Parsing
                     return JsonConvert.DeserializeObject<EMCopyRoomFunction>(jo.ToString(), _resolver);
                 case EMType.CopyVertexAttributes:
                     return JsonConvert.DeserializeObject<EMCopyVertexAttributesFunction>(jo.ToString(), _resolver);
+                case EMType.ImportRoom:
+                    return JsonConvert.DeserializeObject<EMImportRoomFunction>(jo.ToString(), _resolver);
 
+                // Models
                 case EMType.ImportModel:
                     return JsonConvert.DeserializeObject<EMImportModelFunction>(jo.ToString(), _resolver);
+                case EMType.MirrorModel:
+                    return JsonConvert.DeserializeObject<EMMirrorModelFunction>(jo.ToString(), _resolver);
+                case EMType.ConvertSpriteSequence:
+                    return JsonConvert.DeserializeObject<EMConvertSpriteSequenceFunction>(jo.ToString(), _resolver);
+                case EMType.ConvertModel:
+                    return JsonConvert.DeserializeObject<EMConvertModelFunction>(jo.ToString(), _resolver);
 
                 // NOOP
                 case EMType.NOOP:
@@ -147,11 +175,24 @@ namespace TREnvironmentEditor.Parsing
 
         private object ReadConditionType(JObject jo)
         {
-            EMConditionType type = (EMConditionType)jo["ConditionType"].Value<int>();
+            EMConditionType type = (EMConditionType)jo[_conditionTypeName].Value<int>();
             switch (type)
             {
+                // Entities
                 case EMConditionType.EntityProperty:
-                    return JsonConvert.DeserializeObject<EMEntityPropertyCondition>(jo.ToString());
+                    return JsonConvert.DeserializeObject<EMEntityPropertyCondition>(jo.ToString(), this);
+                case EMConditionType.SecretInRoom:
+                    return JsonConvert.DeserializeObject<EMSecretRoomCondition>(jo.ToString(), this);
+
+                // Rooms
+                case EMConditionType.RoomContainsWater:
+                    return JsonConvert.DeserializeObject<EMRoomContainsWaterCondition>(jo.ToString(), this);
+
+                // Models
+                case EMConditionType.ModelExists:
+                    return JsonConvert.DeserializeObject<EMModelExistsCondition>(jo.ToString(), this);
+                case EMConditionType.UnconditionalBirds:
+                    return JsonConvert.DeserializeObject<EMUnconditionalBirdCheck>(jo.ToString(), this); 
 
                 default:
                     throw new InvalidOperationException();

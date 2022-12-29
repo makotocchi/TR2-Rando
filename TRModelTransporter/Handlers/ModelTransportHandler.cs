@@ -46,12 +46,26 @@ namespace TRModelTransporter.Handlers
             }
             else if (!aliasPriority.ContainsKey(definition.Entity) || aliasPriority[definition.Entity] == definition.Alias)
             {
+                if (!definition.HasGraphics)
+                {
+                    // The original mesh data may still be needed so don't overwrite
+                    definition.Model.MeshTree = level.Models[i].MeshTree;
+                    definition.Model.NumMeshes = level.Models[i].NumMeshes;
+                    definition.Model.StartingMesh = level.Models[i].StartingMesh;
+                }
                 level.Models[i] = definition.Model;
             }
 
-            if (definition.Entity == TREntities.Lara && laraDependants != null)
+            if (laraDependants != null)
             {
-                ReplaceLaraDependants(levelModels, definition.Model, laraDependants.Select(e => (short)e));
+                if (definition.Entity == TREntities.Lara)
+                {
+                    ReplaceLaraDependants(levelModels, definition.Model, laraDependants.Select(e => (short)e));
+                }
+                else if (laraDependants.Contains((TREntities)definition.Model.ID))
+                {
+                    ReplaceLaraDependants(levelModels, levelModels.Find(m => m.ID == (uint)TREntities.Lara), new short[] { (short)definition.Model.ID });
+                }
             }
         }
 
@@ -83,7 +97,7 @@ namespace TRModelTransporter.Handlers
             }
         }
 
-        public void Import(TR3Level level, TR3ModelDefinition definition, Dictionary<TR3Entities, TR3Entities> aliasPriority, IEnumerable<TR3Entities> laraDependants)
+        public void Import(TR3Level level, TR3ModelDefinition definition, Dictionary<TR3Entities, TR3Entities> aliasPriority, IEnumerable<TR3Entities> laraDependants, IEnumerable<TR3Entities> unsafeReplacements)
         {
             List<TRModel> levelModels = level.Models.ToList();
             int i = levelModels.FindIndex(m => m.ID == (short)definition.Entity);
@@ -95,7 +109,7 @@ namespace TRModelTransporter.Handlers
             }
             else if (!aliasPriority.ContainsKey(definition.Entity) || aliasPriority[definition.Entity] == definition.Alias)
             {
-                if (definition.Entity == TR3Entities.LaraVehicleAnimation_H)
+                if (!unsafeReplacements.Contains(definition.Entity))
                 {
                     level.Models[i] = definition.Model;
                 }

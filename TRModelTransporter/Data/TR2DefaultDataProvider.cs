@@ -6,11 +6,24 @@ namespace TRModelTransporter.Data
 {
     public class TR2DefaultDataProvider : ITransportDataProvider<TR2Entities>
     {
+        public int TextureTileLimit { get; set; } = 16;
+        public int TextureObjectLimit { get; set; } = 2048;
+
         public Dictionary<TR2Entities, TR2Entities> AliasPriority { get; set; }
 
         public IEnumerable<TR2Entities> GetModelDependencies(TR2Entities entity)
         {
             return _entityDependencies.ContainsKey(entity) ? _entityDependencies[entity] : _emptyEntities;
+        }
+
+        public IEnumerable<TR2Entities> GetRemovalExclusions(TR2Entities entity)
+        {
+            return _emptyEntities;
+        }
+
+        public IEnumerable<TR2Entities> GetCyclicDependencies(TR2Entities entity)
+        {
+            return _emptyEntities;
         }
 
         public IEnumerable<TR2Entities> GetSpriteDependencies(TR2Entities entity)
@@ -74,6 +87,16 @@ namespace TRModelTransporter.Data
             return _permittedAliasDuplicates.Contains(entity);
         }
 
+        public bool IsOverridePermitted(TR2Entities entity)
+        {
+            return _permittedOverrides.Contains(entity);
+        }
+
+        public IEnumerable<TR2Entities> GetUnsafeModelReplacements()
+        {
+            return _unsafeModelReplacements;
+        }
+
         public bool IsNonGraphicsDependency(TR2Entities entity)
         {
             return _nonGraphicsDependencies.Contains(entity);
@@ -89,7 +112,7 @@ namespace TRModelTransporter.Data
             return _hardcodedSoundIndices.ContainsKey(entity) ? _hardcodedSoundIndices[entity] : null;
         }
 
-        public IEnumerable<int> GetIgnorableTextureIndices(TR2Entities entity)
+        public IEnumerable<int> GetIgnorableTextureIndices(TR2Entities entity, string level)
         {
             return _ignoreEntityTextures.ContainsKey(entity) ? _ignoreEntityTextures[entity] : null;
         }
@@ -174,7 +197,11 @@ namespace TRModelTransporter.Data
             [TR2Entities.RedSnowmobile] 
                 = new List<TR2Entities> { TR2Entities.SnowmobileWake_S_H },
             [TR2Entities.XianGuardSword] 
-                = new List<TR2Entities> { TR2Entities.XianGuardSparkles_S_H }
+                = new List<TR2Entities> { TR2Entities.XianGuardSparkles_S_H },
+            [TR2Entities.WaterfallMist_N]
+                = new List<TR2Entities> { TR2Entities.WaterRipples_S_H },
+            [TR2Entities.Key2_M_H]
+                = new List<TR2Entities> { TR2Entities.Key2_S_P }
         };
 
         private static readonly List<TR2Entities> _cinematicEntities = new List<TR2Entities>
@@ -213,7 +240,7 @@ namespace TRModelTransporter.Data
 
             [TR2Entities.LaraMiscAnim_H] = new List<TR2Entities>
             {
-                TR2Entities.LaraMiscAnim_H_Wall, TR2Entities.LaraMiscAnim_H_Unwater, TR2Entities.LaraMiscAnim_H_Ice, TR2Entities.LaraMiscAnim_H_Xian, TR2Entities.LaraMiscAnim_H_HSH
+                TR2Entities.LaraMiscAnim_H_Wall, TR2Entities.LaraMiscAnim_H_Unwater, TR2Entities.LaraMiscAnim_H_Ice, TR2Entities.LaraMiscAnim_H_Xian, TR2Entities.LaraMiscAnim_H_HSH, TR2Entities.LaraMiscAnim_H_Venice
             },
 
             [TR2Entities.TigerOrSnowLeopard] = new List<TR2Entities>
@@ -249,6 +276,15 @@ namespace TRModelTransporter.Data
         private static readonly List<TR2Entities> _permittedAliasDuplicates = new List<TR2Entities>
         {
             TR2Entities.LaraMiscAnim_H
+        };
+
+        private static readonly List<TR2Entities> _permittedOverrides = new List<TR2Entities>
+        {
+            TR2Entities.MarcoBartoli
+        };
+
+        private static readonly List<TR2Entities> _unsafeModelReplacements = new List<TR2Entities>
+        {
         };
 
         private static readonly List<TR2Entities> _nonGraphicsDependencies = new List<TR2Entities>
@@ -354,6 +390,8 @@ namespace TRModelTransporter.Data
         {
             [TR2Entities.LaraMiscAnim_H] 
                 = new List<int>(), // empty list indicates to ignore everything
+            [TR2Entities.WaterfallMist_N]
+                = new List<int> { 0, 1, 2, 3, 4, 5, 6, 11, 15, 20, 22 },
             [TR2Entities.LaraSnowmobAnim_H] 
                 = new List<int> { 0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 20, 21, 23 },
             [TR2Entities.SnowmobileBelt] 

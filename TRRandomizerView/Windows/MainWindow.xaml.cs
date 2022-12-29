@@ -324,6 +324,16 @@ namespace TRRandomizerView.Windows
             _editorControl.RandomizeAllSeeds();
         }
 
+        private void RandomizeOptionsCommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = IsEditorActive && _editorControl.CanRandomize();
+        }
+
+        private void RandomizeOptionsCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            _editorControl.RandomizeAllOptions();
+        }
+
         private void GlobalSeedCommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
             e.CanExecute = IsEditorActive && _editorControl.CanRandomize();
@@ -337,6 +347,16 @@ namespace TRRandomizerView.Windows
         private void EditorActiveCommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
             e.CanExecute = IsEditorActive;
+        }
+
+        private void EditCommunitySettingsCommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = IsEditorActive && _editorControl.CanEditCommunitySettings();
+        }
+
+        private void EditCommunitySettingsCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            _editorControl.EditCommunitySettings();
         }
         #endregion
 
@@ -359,6 +379,15 @@ namespace TRRandomizerView.Windows
         private void RestoreCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
         {
             _editorControl.RestoreDefaults();
+        }
+
+        private void DeleteBackupCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            if (_editorControl.DeleteBackup())
+            {
+                _editorControl.Unload();
+                IsEditorActive = false;
+            }
         }
 
         private void ImportSettingsCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)

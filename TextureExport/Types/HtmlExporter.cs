@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
 using System.Text;
 using TRLevelReader.Helpers;
 using TRLevelReader.Model;
@@ -20,16 +19,24 @@ namespace TextureExport.Types
             using (TR1TexturePacker packer = new TR1TexturePacker(level))
             {
                 StringBuilder tiles = new StringBuilder();
-                BuildTiles(tiles, packer.Tiles);
+                BuildTiles(tiles, packer.Tiles, level.Palette);
 
                 StringBuilder levelSel = new StringBuilder();
-                BuildLevelSelect(levelSel, lvlName, TRLevelNames.AsListWithAssault.Concat(TRLevelNames.AsListGold));
+                BuildLevelSelect(levelSel, lvlName, TRLevelNames.AsOrderedList);
 
                 StringBuilder skyboxInfo = new StringBuilder();
                 Dictionary<int, TRColour4> skyColours = new Dictionary<int, TRColour4>();
                 BuildSkyBox(skyboxInfo, skyColours);
 
-                Write("TR1", lvlName, tiles, levelSel, skyboxInfo);
+                StringBuilder palette = new StringBuilder();
+                ISet<Color> colors = new HashSet<Color>();
+                foreach (TRColour c in level.Palette)
+                {
+                    colors.Add(Color.FromArgb(c.Red, c.Green, c.Blue));
+                }
+                palette.Append(colors.Count).Append(" unique colours");
+
+                Write("TR1", lvlName, tiles, levelSel, skyboxInfo, palette);
             }
         }
 
@@ -41,7 +48,7 @@ namespace TextureExport.Types
                 BuildTiles(tiles, packer.Tiles);
 
                 StringBuilder levelSel = new StringBuilder();
-                BuildLevelSelect(levelSel, lvlName, TR2LevelNames.AsListWithAssault.Concat(TR2LevelNames.AsListGold));
+                BuildLevelSelect(levelSel, lvlName, TR2LevelNames.AsOrderedList);
 
                 StringBuilder skyboxInfo = new StringBuilder();
                 Dictionary<int, TRColour4> skyColours = GetSkyBoxColours(TRMeshUtilities.GetModelMeshes(level, TR2Entities.Skybox_H), level.Palette16);
@@ -59,7 +66,7 @@ namespace TextureExport.Types
                 BuildTiles(tiles, packer.Tiles);
 
                 StringBuilder levelSel = new StringBuilder();
-                BuildLevelSelect(levelSel, lvlName, TR3LevelNames.AsListWithAssault.Concat(TR3LevelNames.AsListGold));
+                BuildLevelSelect(levelSel, lvlName, TR3LevelNames.AsOrderedList);
 
                 StringBuilder skyboxInfo = new StringBuilder();
                 Dictionary<int, TRColour4> skyColours = GetSkyBoxColours(TRMeshUtilities.GetModelMeshes(level, TR3Entities.Skybox_H), level.Palette16);
@@ -69,7 +76,7 @@ namespace TextureExport.Types
             }
         }
 
-        private static void BuildTiles(StringBuilder html, IReadOnlyList<TexturedTile> tiles)
+        private static void BuildTiles(StringBuilder html, IReadOnlyList<TexturedTile> tiles, TRColour[] palette = null)
         {
             foreach (TexturedTile tile in tiles)
             {
@@ -89,18 +96,47 @@ namespace TextureExport.Types
                         html.Append(string.Format("data-tile=\"{0}\" ", tile.Index));
                         html.Append(string.Format("data-rect=\"{0}\" ", RectangleToString(segment.Bounds)));
 
+                        if (palette != null)
+                        {
+                            // Assume 8-bit so we want to see the palette indices for this segment
+                            ISet<int> paletteIndices = new SortedSet<int>();
+                            for (int y = 0; y < segment.Bitmap.Height; y++)
+                            {
+                                for (int x = 0; x < segment.Bitmap.Width; x++)
+                                {
+                                    Color c = segment.Bitmap.GetPixel(x, y);
+                                    if (c.A != 0)
+                                    {
+                                        TRColour col = new TRColour
+                                        {
+                                            Red = (byte)(c.R / 4),
+                                            Green = (byte)(c.G / 4),
+                                            Blue = (byte)(c.B / 4)
+                                        };
+                                        int index = Array.FindIndex(palette, p => p.Red == col.Red && p.Green == col.Green && p.Blue == col.Blue);
+                                        if (index != -1)
+                                        {
+                                            paletteIndices.Add(index);
+                                        }
+                                    }
+                                }
+                            }
+
+                            html.Append(string.Format("data-palette=\"{0}\" ", string.Join(",", paletteIndices)));
+                        }
+
                         List<string> objectData = new List<string>();
                         List<string> spriteData = new List<string>();
 
                         foreach (AbstractIndexedTRTexture texture in segment.Textures)
                         {
-                            if (texture is IndexedTRObjectTexture)
+                            if (texture is IndexedTRObjectTexture objTexture)
                             {
-                                objectData.Add(texture.Index + ": " + RectangleToString(texture.Bounds));
+                                objectData.Add(texture.Index + ":" + RectangleToString(texture.Bounds) + ":" + (objTexture.IsTriangle ? "T" : "Q"));
                             }
                             else
                             {
-                                spriteData.Add(texture.Index + ": " + RectangleToString(texture.Bounds));
+                                spriteData.Add(texture.Index + ":" + RectangleToString(texture.Bounds));
                             }
                         }
 
@@ -209,13 +245,14 @@ namespace TextureExport.Types
             }
         }
 
-        private static void Write(string dir, string lvlName, StringBuilder tiles, StringBuilder levelSelect, StringBuilder skyBox)
+        private static void Write(string dir, string lvlName, StringBuilder tiles, StringBuilder levelSelect, StringBuilder skyBox, StringBuilder palette = null)
         {
             string tpl = File.ReadAllText(@"Resources\TileTemplate.html");
             tpl = tpl.Replace("{Title}", lvlName);
             tpl = tpl.Replace("{Levels}", levelSelect.ToString());
             tpl = tpl.Replace("{Tiles}", tiles.ToString());
             tpl = tpl.Replace("{SkyBox}", skyBox.ToString());
+            tpl = tpl.Replace("{Palette}", palette == null ? string.Empty : palette.ToString());
 
             dir += @"\HTML";
             Directory.CreateDirectory(dir);

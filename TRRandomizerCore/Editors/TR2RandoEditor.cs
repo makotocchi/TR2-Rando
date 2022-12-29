@@ -1,10 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using TRRandomizerCore.Processors;
-using TRRandomizerCore.Randomizers;
-using TRRandomizerCore.Utilities;
 using TRGE.Coord;
 using TRGE.Core;
+using TRLevelReader.Helpers;
+using TRRandomizerCore.Processors;
+using TRRandomizerCore.Randomizers;
+using TRRandomizerCore.Textures;
 
 namespace TRRandomizerCore.Editors
 {
@@ -17,7 +20,10 @@ namespace TRRandomizerCore.Editors
 
         protected override void ApplyConfig(Config config)
         {
-            Settings = new RandomizerSettings();
+            Settings = new RandomizerSettings
+            {
+                ExcludableEnemies = JsonConvert.DeserializeObject<Dictionary<short, string>>(File.ReadAllText(@"Resources\TR2\Restrictions\excludable_enemies.json"))
+            };
             Settings.ApplyConfig(config);
         }
 
@@ -28,7 +34,16 @@ namespace TRRandomizerCore.Editors
 
         protected override int GetSaveTarget(int numLevels)
         {
-            return base.GetSaveTarget(numLevels) + Settings.GetSaveTarget(numLevels);
+            int target = base.GetSaveTarget(numLevels) + Settings.GetSaveTarget(numLevels);
+            if (Settings.RandomizeItems && Settings.RandomizeItemSprites)
+            {
+                target += numLevels;
+            }
+            if (Settings.RandomizeEnemies)
+            {
+                target += numLevels; // Used to eliminate unused enemies prior to any other processing
+            }
+            return target;
         }
 
         protected override void SaveImpl(AbstractTRScriptEditor scriptEditor, TRSaveMonitor monitor)
@@ -48,10 +63,28 @@ namespace TRRandomizerCore.Editors
             TR23ScriptEditor tr23ScriptEditor = scriptEditor as TR23ScriptEditor;
             string wipDirectory = _io.WIPOutputDirectory.FullName;
 
+            if (Settings.DevelopmentMode)
+            {
+                (tr23ScriptEditor.Script as TR23Script).LevelSelectEnabled = true;
+                scriptEditor.SaveScript();
+            }
+
             // Texture monitoring is needed between enemy and texture randomization
             // to track where imported enemies are placed.
-            using (TexturePositionMonitorBroker textureMonitor = new TexturePositionMonitorBroker())
+            using (TR2TextureMonitorBroker textureMonitor = new TR2TextureMonitorBroker())
             {
+                if (!monitor.IsCancelled && Settings.RandomizeEnemies)
+                {
+                    monitor.FireSaveStateBeginning(TRSaveCategory.Custom, "Adjusting enemy entities");
+                    new TR2EnemyAdjuster
+                    {
+                        ScriptEditor = tr23ScriptEditor,
+                        Levels = levels,
+                        BasePath = wipDirectory,
+                        SaveMonitor = monitor
+                    }.AdjustEnemies();
+                }
+
                 if (!monitor.IsCancelled && (Settings.RandomizeGameStrings || Settings.ReassignPuzzleNames))
                 {
                     monitor.FireSaveStateBeginning(TRSaveCategory.Custom, "Adjusting game strings");
@@ -239,6 +272,12 @@ namespace TRRandomizerCore.Editors
                             TextureMonitor = textureMonitor
                         }.Randomize(Settings.NightModeSeed);
                     }
+                }
+
+                if (!monitor.IsCancelled && Settings.RandomizeItems && Settings.RandomizeItemSprites)
+                {
+                    monitor.FireSaveStateBeginning(TRSaveCategory.Custom, "Randomizing Sprites");
+                    itemRandomizer.RandomizeLevelsSprites();
                 }
             }
         }

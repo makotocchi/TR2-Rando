@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -74,6 +75,54 @@ namespace TRLevelReader.Model
             }
         }
 
+        public bool IsSkyboxVisible
+        {
+            get => (Flags & 0x08) > 0;
+            set
+            {
+                if (value)
+                {
+                    Flags |= 0x08;
+                }
+                else
+                {
+                    Flags &= ~0x08;
+                }
+            }
+        }
+
+        public bool IsWindy
+        {
+            get => (Flags & 0x20) > 0;
+            set
+            {
+                if (value)
+                {
+                    Flags |= 0x20;
+                }
+                else
+                {
+                    Flags &= ~0x20;
+                }
+            }
+        }
+
+        public bool IsSwamp
+        {
+            get => (Flags & 0x80) > 0;
+            set
+            {
+                if (value)
+                {
+                    Flags |= 0x80;
+                }
+                else
+                {
+                    Flags &= ~0x80;
+                }
+            }
+        }
+
         public void SetAmbient(short val)
         {
             AmbientIntensity = val;
@@ -135,6 +184,60 @@ namespace TRLevelReader.Model
                 vert.Colour = (ushort)((red << 10) | (green << 5) | (blue));
             }
         }
+
+        #region Vertex Effects & Filters
+        public void SetColourFilter(Color col, bool replace, bool enableCaustics, bool enableWave)
+        {
+            foreach (TR3RoomVertex vert in RoomData.Vertices)
+            {
+                byte curRed = (byte)((vert.Colour & 0x7C00) >> 10);
+                byte curGreen = (byte)((vert.Colour & 0x03E0) >> 5);
+                byte curBlue = (byte)(vert.Colour & 0x001F);
+
+                byte newRed = ConvertColorChannelToRGB555(col.R);
+                byte newGreen = ConvertColorChannelToRGB555(col.G);
+                byte newBlue = ConvertColorChannelToRGB555(col.B);
+
+                if (replace)
+                {
+                    byte applyR = curRed;
+                    byte applyG = curGreen;
+                    byte applyB = curBlue;
+
+                    if (newRed > 0)
+                        applyR = newRed;
+
+                    if (newGreen > 0)
+                        applyG = newGreen;
+
+                    if (newBlue > 0)
+                        applyB = newBlue;
+
+                    vert.Colour = (ushort)((applyR << 10) | (applyG << 5) | (applyB));
+                }
+                else
+                {
+                    vert.Colour = (ushort)((Blend(curRed, newRed) << 10) | (Blend(curGreen, newGreen) << 5) | (Blend(curBlue, newBlue)));
+                }
+
+                // #296 Retain original caustics and waves for water/swamp rooms
+                if (!vert.UseCaustics)
+                    vert.UseCaustics = enableCaustics;
+                if (!vert.UseWaveMovement)
+                    vert.UseWaveMovement = enableWave;
+            }
+        }
+
+        private byte ConvertColorChannelToRGB555(byte col)
+        {
+            return (byte)(((col - byte.MinValue) * (31 - 0)) / (byte.MaxValue - byte.MinValue) + 0);
+        }
+
+        private byte Blend(byte curChannel, byte newChannel)
+        {
+            return Math.Min((byte)((newChannel * 0.1) + curChannel * (1 - 0.1)), (byte)31);
+        }
+        #endregion
 
         public byte[] Serialize()
         {

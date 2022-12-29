@@ -1,346 +1,1213 @@
 {
-  "WALL.TR2": {
-    "13": [
-      {
-        "X": 48681,
-        "Z": 30162,
-        "Y": -1066,
-        "Room": 25,
-        "RequiresGlitch": false,
-        "Difficulty": 0
-      },
-      {
-        "X": 28165,
-        "Z": 59891,
-        "Y": 6912,
-        "Room": 51,
-        "RequiresGlitch": false,
-        "Difficulty": 0
-      }
-    ]
-  },
-  "BOAT.TR2": {
-    "13": [
-      {
-        "X": 58875,
-        "Z": 22012,
-        "Y": -1027,
-        "Room": 0,
-        "RequiresGlitch": false,
-        "Difficulty": 0
-      }
-    ]
-  },
-  "VENICE.TR2": {
-    "13": [
-      {
-        "X": 71810,
-        "Z": 40956,
-        "Y": 4608,
-        "Room": 106,
-        "RequiresGlitch": false,
-        "Difficulty": 0
-      },
-      {
-        "X": 58364,
-        "Z": 43532,
-        "Y": 2816,
-        "Room": 32,
-        "RequiresGlitch": false,
-        "Difficulty": 0
-      },
-      {
-        "X": 46623,
-        "Z": 35411,
-        "Y": 4608,
-        "Room": 38,
-        "RequiresGlitch": false,
-        "Difficulty": 0
-      }
-    ]
-  },
-  "OPERA.TR2": {
-    "13": [
-      {
-        "X": 69146,
-        "Z": 47636,
-        "Y": 5888,
-        "Room": 122,
-        "RequiresGlitch": false,
-        "Difficulty": 0
-      },
-      {
-        "X": 72189,
-        "Z": 49670,
-        "Y": -2560,
-        "Room": 19,
-        "RequiresGlitch": false,
-        "Difficulty": 0
-      }
-    ]
-  },
-  "RIG.TR2": {
-    "13": [
-      {
-        "X": 48184,
-        "Z": 92664,
-        "Y": -1536,
-        "Room": 4,
-        "RequiresGlitch": false,
-        "Difficulty": 0
-      }
-    ]
-  },
-  "PLATFORM.TR2": {
-    "13": [
-      {
-        "X": 21000,
-        "Z": 77278,
-        "Y": -5120,
-        "Room": 54,
-        "RequiresGlitch": false,
-        "Difficulty": 0
-      }
-    ]
-  },
-  "UNWATER.TR2": {
-    "13": [
-      {
-        "X": 77597,
-        "Z": 68405,
-        "Y": -5632,
-        "Room": 67,
-        "RequiresGlitch": false,
-        "Difficulty": 0
-      }
-    ]
-  },
-  "KEEL.TR2": {
-    "13": [
-      {
-        "X": 67080,
-        "Z": 41463,
-        "Y": 4352,
-        "Room": 45,
-        "RequiresGlitch": false,
-        "Difficulty": 0
-      }
-    ]
-  },
-  "LIVING.TR2": {
-    "13": [
-      {
-        "X": 82312,
-        "Z": 78359,
-        "Y": -1770,
-        "Room": 2,
-        "RequiresGlitch": false,
-        "Difficulty": 0
-      },
-      {
-        "X": 51624,
-        "Z": 62988,
-        "Y": 68,
-        "Room": 69,
-        "RequiresGlitch": false,
-        "Difficulty": 0
-      }
-    ]
-  },
-  "DECK.TR2": {
-    "13": [
-      {
-        "X": 39936,
-        "Z": 59864,
-        "Y": -10850,
-        "Room": 52,
-        "RequiresGlitch": false,
-        "Difficulty": 0
-      }
-    ],
-    "14": [
-      {
-        "X": 58902,
-        "Z": 36455,
-        "Y": 6147,
-        "Room": 28,
-        "Angle": 0,
-        "RequiresGlitch": false,
-        "Difficulty": 0
-      },
-      {
-        "X": 54700,
-        "Z": 51655,
-        "Y": 6147,
-        "Room": 25,
-        "Angle": -32768,
-        "RequiresGlitch": false,
-        "Difficulty": 0
-      },
-      {
-        "X": 65994,
-        "Z": 56323,
-        "Y": 6147,
-        "Room": 24,
-        "Angle": -32768,
-        "RequiresGlitch": false,
-        "Difficulty": 0
-      },
-      {
-        "X": 67000,
-        "Z": 57876,
-        "Y": 6147,
-        "Room": 24,
-        "Angle": -16384,
-        "RequiresGlitch": false,
-        "Difficulty": 0
-      }
-    ]
-  },
-  "MONASTRY.TR2": {
-    "13": [
-      {
-        "X": 83410,
-        "Z": 22013,
-        "Y": -256,
-        "Room": 23,
-        "RequiresGlitch": false,
-        "Difficulty": 0
-      }
-    ]
-  },
-  "CATACOMB.TR2": {
-    "13": [
-      {
-        "X": 28199,
-        "Z": 55795,
-        "Y": 7541,
-        "Room": 107,
-        "RequiresGlitch": false,
-        "Difficulty": 0
-      },
-      {
-        "X": 28138,
-        "Z": 40957,
-        "Y": 10752,
-        "Room": 125,
-        "RequiresGlitch": false,
-        "Difficulty": 0
-      }
-    ]
-  },
-  "ICECAVE.TR2": {
-    "13": [
-      {
-        "X": 27137,
-        "Z": 59938,
-        "Y": 7186,
-        "Room": 22,
-        "RequiresGlitch": false,
-        "Difficulty": 0
-      },
-      {
-        "X": 42343,
-        "Z": 54809,
-        "Y": 3584,
-        "Room": 31,
-        "RequiresGlitch": false,
-        "Difficulty": 0
-      }
-    ]
-  },
-  "EMPRTOMB.TR2": {
-    "13": [
-      {
-        "X": 33301,
-        "Z": 48644,
-        "Y": 23930,
-        "Room": 39,
-        "RequiresGlitch": false,
-        "Difficulty": 0
-      },
-      {
-        "X": 18972,
-        "Z": 51688,
-        "Y": 12288,
-        "Room": 8,
-        "RequiresGlitch": false,
-        "Difficulty": 0
-      },
-      {
-        "X": 13307,
-        "Z": 25600,
-        "Y": 17151,
-        "Room": 150,
-        "RequiresGlitch": false,
-        "Difficulty": 0
-      },
-      {
-        "X": 33321,
-        "Z": 41409,
-        "Y": 23925,
-        "Room": 39,
-        "RequiresGlitch": false,
-        "Difficulty": 0
-      }
-    ]
-  },
-  "FLOATING.TR2": {
-    "13": [
-      {
-        "X": 32000,
-        "Z": 82485,
-        "Y": 3584,
-        "Room": 149,
-        "RequiresGlitch": false,
-        "Difficulty": 0
-      }
-    ]
-  },
-  "ASSAULT.TR2": {
-    "13": [
-      {
-        "X": 17974,
-        "Z": 95686,
-        "Y": 2560,
-        "Room": 16,
-        "RequiresGlitch": false,
-        "Difficulty": 0
-      },
-      {
-        "X": 38376,
-        "Z": 94819,
-        "Y": 2560,
-        "Room": 90,
-        "RequiresGlitch": false,
-        "Difficulty": 0
-      },
-      {
-        "X": 41266,
-        "Z": 56719,
-        "Y": 2816,
-        "Room": 2,
-        "RequiresGlitch": false,
-        "Difficulty": 0
-      },
-      {
-        "X": 46696,
-        "Z": 71179,
-        "Y": 2560,
-        "Room": 50,
-        "RequiresGlitch": false,
-        "Difficulty": 0
-      }
-    ],
-    "14": [
-      {
-        "X": 26142,
-        "Z": 92410,
-        "Y": 3648,
-        "Room": 14,
-        "RequiresGlitch": false,
-        "Difficulty": 0
-      }
-    ]
-  }
+  "WALL.TR2": [
+    {
+      "X": 48681,
+      "Y": -1066,
+      "Z": 30162,
+      "Room": 25,
+      "TargetType": 13
+    },
+    {
+      "X": 28165,
+      "Y": 6912,
+      "Z": 59891,
+      "Room": 51,
+      "TargetType": 13
+    },
+    {
+      "X": 50823,
+      "Y": -835,
+      "Z": 38557,
+      "Room": 22,
+      "TargetType": 14
+    },
+    {
+      "X": 59817,
+      "Y": 13056,
+      "Z": 77231,
+      "Room": 59,
+      "TargetType": 14
+    }
+  ],
+  "BOAT.TR2": [
+    {
+      "X": 58875,
+      "Y": -1027,
+      "Z": 22012,
+      "Room": 0,
+      "TargetType": 13
+    },
+    {
+      "X": 25651,
+      "Y": 1042,
+      "Z": 78398,
+      "Room": 146,
+      "Angle": 0,
+      "TargetType": 14,
+      "Validated": false
+    },
+    {
+      "X": 54987,
+      "Y": 0,
+      "Z": 37371,
+      "Room": 16,
+      "TargetType": 14
+    },
+    {
+      "X": 49606,
+      "Y": 1175,
+      "Z": 44069,
+      "Room": 15,
+      "Angle": -32768,
+      "TargetType": 14
+    },
+    {
+      "X": 48683,
+      "Y": 1536,
+      "Z": 28863,
+      "Room": 10,
+      "Angle": -32768,
+      "TargetType": 14
+    },
+    {
+      "X": 33948,
+      "Y": 5360,
+      "Z": 14429,
+      "Room": 126,
+      "TargetType": 14
+    },
+    {
+      "X": 39913,
+      "Y": 3066,
+      "Z": 21937,
+      "Room": 53,
+      "Angle": 0,
+      "TargetType": 14
+    },
+    {
+      "X": 33197,
+      "Y": 3691,
+      "Z": 26625,
+      "Room": 56,
+      "Angle": 0,
+      "TargetType": 14
+    },
+    {
+      "X": 33766,
+      "Y": 1017,
+      "Z": 40763,
+      "Room": 66,
+      "Angle": 0,
+      "TargetType": 14
+    },
+    {
+      "X": 25562,
+      "Y": 1344,
+      "Z": 75480,
+      "Room": 109,
+      "Angle": 0,
+      "TargetType": 14
+    },
+    {
+      "X": 33792,
+      "Y": 868,
+      "Z": 59920,
+      "Room": 102,
+      "TargetType": 14
+    },
+    {
+      "X": 59202,
+      "Y": 1536,
+      "Z": 61449,
+      "Room": 101,
+      "TargetType": 14
+    },
+    {
+      "X": 24550,
+      "Y": 1779,
+      "Z": 44438,
+      "Room": 106,
+      "TargetType": 14
+    },
+    {
+      "X": 39682,
+      "Y": 1899,
+      "Z": 44460,
+      "Room": 97,
+      "Angle": -16384,
+      "TargetType": 14
+    },
+    {
+      "X": 40411,
+      "Y": 0,
+      "Z": 46858,
+      "Room": 69,
+      "Angle": 0,
+      "TargetType": 14
+    },
+    {
+      "X": 41042,
+      "Y": 1812,
+      "Z": 54186,
+      "Room": 104,
+      "Angle": 0,
+      "TargetType": 14
+    },
+    {
+      "X": 42450,
+      "Y": -2048,
+      "Z": 58206,
+      "Room": 92,
+      "Angle": 0,
+      "TargetType": 14,
+      "Validated": false
+    },
+    {
+      "X": 44032,
+      "Y": 1903,
+      "Z": 62076,
+      "Room": 135,
+      "TargetType": 14
+    },
+    {
+      "X": 51275,
+      "Y": 1573,
+      "Z": 61041,
+      "Room": 135,
+      "TargetType": 14
+    },
+    {
+      "X": 61952,
+      "Y": -1920,
+      "Z": 60928,
+      "Room": 91,
+      "TargetType": 14
+    },
+    {
+      "X": 19801,
+      "Y": -1280,
+      "Z": 63960,
+      "Room": 151,
+      "Angle": -16384,
+      "TargetType": 14
+    },
+    {
+      "X": 75978,
+      "Y": 1928,
+      "Z": 61985,
+      "Room": 100,
+      "TargetType": 14
+    },
+    {
+      "X": 84480,
+      "Y": 768,
+      "Z": 58880,
+      "Room": 130,
+      "TargetType": 14
+    },
+    {
+      "X": 78723,
+      "Y": 2022,
+      "Z": 53351,
+      "Room": 103,
+      "TargetType": 14
+    },
+    {
+      "X": 75251,
+      "Y": 1534,
+      "Z": 51721,
+      "Room": 136,
+      "TargetType": 14
+    },
+    {
+      "X": 58436,
+      "Y": -2048,
+      "Z": 48671,
+      "Room": 150,
+      "Angle": -32768,
+      "TargetType": 14
+    },
+    {
+      "X": 65665,
+      "Y": 1312,
+      "Z": 53596,
+      "Room": 99,
+      "TargetType": 14
+    },
+    {
+      "X": 53887,
+      "Y": 927,
+      "Z": 57415,
+      "Room": 137,
+      "Angle": 0,
+      "TargetType": 14
+    },
+    {
+      "X": 55960,
+      "Y": 1189,
+      "Z": 48611,
+      "Room": 98,
+      "Angle": -16384,
+      "TargetType": 14
+    },
+    {
+      "X": 41519,
+      "Y": 3321,
+      "Z": 32234,
+      "Room": 55,
+      "Angle": -32768,
+      "TargetType": 14
+    },
+    {
+      "X": 67642,
+      "Y": -1009,
+      "Z": 60901,
+      "Room": 80,
+      "TargetType": 14
+    },
+    {
+      "X": 68722,
+      "Y": 1697,
+      "Z": 62652,
+      "Room": 100,
+      "TargetType": 14
+    },
+    {
+      "X": 59781,
+      "Y": 0,
+      "Z": 51703,
+      "Room": 79,
+      "TargetType": 14
+    },
+    {
+      "X": 65024,
+      "Y": 768,
+      "Z": 48787,
+      "Room": 149,
+      "Angle": 0,
+      "TargetType": 14,
+      "Validated": false
+    },
+    {
+      "X": 26148,
+      "Y": 0,
+      "Z": 53845,
+      "Room": 74,
+      "Angle": -32768,
+      "TargetType": 14
+    },
+    {
+      "X": 25163,
+      "Y": -2304,
+      "Z": 53728,
+      "Room": 84,
+      "Angle": 0,
+      "TargetType": 14
+    },
+    {
+      "X": 24097,
+      "Y": -2287,
+      "Z": 45537,
+      "Room": 84,
+      "TargetType": 14
+    },
+    {
+      "X": 49301,
+      "Y": 1819,
+      "Z": 35606,
+      "Room": 11,
+      "TargetType": 14
+    },
+    {
+      "X": 46686,
+      "Y": -3792,
+      "Z": 35663,
+      "Room": 25,
+      "Angle": -16384,
+      "TargetType": 14
+    },
+    {
+      "X": 33646,
+      "Y": 3345,
+      "Z": 37079,
+      "Room": 62,
+      "Angle": 0,
+      "TargetType": 14
+    },
+    {
+      "X": 49957,
+      "Y": 1536,
+      "Z": 16124,
+      "Room": 42,
+      "Angle": -32768,
+      "TargetType": 14
+    },
+    {
+      "X": 51491,
+      "Y": -3328,
+      "Z": 39456,
+      "Room": 24,
+      "TargetType": 14
+    },
+    {
+      "X": 43439,
+      "Y": 1387,
+      "Z": 39220,
+      "Room": 30,
+      "TargetType": 14
+    },
+    {
+      "X": 43229,
+      "Y": 1039,
+      "Z": 37407,
+      "Room": 30,
+      "TargetType": 14
+    },
+    {
+      "X": 44819,
+      "Y": 0,
+      "Z": 29194,
+      "Room": 58,
+      "Angle": -16384,
+      "TargetType": 14
+    },
+    {
+      "X": 27040,
+      "Y": -2816,
+      "Z": 65089,
+      "Room": 94,
+      "Angle": -16384,
+      "TargetType": 14,
+      "Validated": false
+    },
+    {
+      "X": 27584,
+      "Y": 1280,
+      "Z": 63481,
+      "Room": 108,
+      "Angle": 0,
+      "TargetType": 14
+    },
+    {
+      "X": 24118,
+      "Y": -768,
+      "Z": 63153,
+      "Room": 81,
+      "TargetType": 14
+    },
+    {
+      "X": 49715,
+      "Y": 0,
+      "Z": 41753,
+      "Room": 20,
+      "Angle": -32768,
+      "TargetType": 14
+    },
+    {
+      "X": 41526,
+      "Y": 1165,
+      "Z": 38619,
+      "Room": 30,
+      "Angle": 0,
+      "TargetType": 14
+    },
+    {
+      "X": 48075,
+      "Y": -3311,
+      "Z": 47583,
+      "Room": 32,
+      "TargetType": 14,
+      "Validated": false
+    }
+  ],
+  "VENICE.TR2": [
+    {
+      "X": 71810,
+      "Y": 4608,
+      "Z": 40956,
+      "Room": 106,
+      "TargetType": 13
+    },
+    {
+      "X": 72374,
+      "Y": 6656,
+      "Z": 35293,
+      "Room": 154,
+      "TargetType": 14
+    },
+    {
+      "X": 67905,
+      "Y": 6656,
+      "Z": 46347,
+      "Room": 111,
+      "TargetType": 14
+    },
+    {
+      "X": 59078,
+      "Y": 569,
+      "Z": 47500,
+      "Room": 162,
+      "Angle": 0,
+      "TargetType": 14
+    },
+    {
+      "X": 58277,
+      "Y": 2304,
+      "Z": 41373,
+      "Room": 152,
+      "TargetType": 13,
+      "VehicleRequired": true
+    },
+    {
+      "X": 55699,
+      "Y": 2048,
+      "Z": 37880,
+      "Room": 15,
+      "TargetType": 13
+    },
+    {
+      "X": 45563,
+      "Y": 5983,
+      "Z": 44415,
+      "Room": 28,
+      "TargetType": 14
+    },
+    {
+      "X": 52750,
+      "Y": 6392,
+      "Z": 44144,
+      "Room": 28
+    },
+    {
+      "X": 52771,
+      "Y": 6912,
+      "Z": 37762,
+      "Room": 39,
+      "Angle": 0,
+      "TargetType": 14
+    },
+    {
+      "X": 59795,
+      "Y": 6656,
+      "Z": 46247,
+      "Room": 164,
+      "TargetType": 14
+    },
+    {
+      "X": 68690,
+      "Y": 5120,
+      "Z": 22437,
+      "Room": 139,
+      "TargetType": 14
+    },
+    {
+      "X": 58386,
+      "Y": 6144,
+      "Z": 16190,
+      "Room": 127,
+      "TargetType": 14
+    },
+    {
+      "X": 37150,
+      "Y": 5632,
+      "Z": 29312,
+      "Room": 134,
+      "TargetType": 14
+    }
+  ],
+  "OPERA.TR2": [
+    {
+      "X": 69146,
+      "Y": 5888,
+      "Z": 47636,
+      "Room": 122,
+      "TargetType": 13
+    },
+    {
+      "X": 72189,
+      "Y": -2560,
+      "Z": 49670,
+      "Room": 19,
+      "TargetType": 13
+    }
+  ],
+  "RIG.TR2": [
+    {
+      "X": 48184,
+      "Y": -1536,
+      "Z": 92664,
+      "Room": 4,
+      "TargetType": 13
+    },
+    {
+      "X": 33282,
+      "Y": -2762,
+      "Z": 92373,
+      "Room": 92,
+      "TargetType": 14
+    },
+    {
+      "X": 26111,
+      "Y": 2560,
+      "Z": 48157,
+      "Room": 48,
+      "Angle": -32768,
+      "TargetType": 14
+    },
+    {
+      "X": 40403,
+      "Y": 9984,
+      "Z": 43797,
+      "Room": 64,
+      "TargetType": 14
+    }
+  ],
+  "PLATFORM.TR2": [
+    {
+      "X": 21000,
+      "Y": -5120,
+      "Z": 77278,
+      "Room": 54,
+      "TargetType": 13
+    }
+  ],
+  "UNWATER.TR2": [
+    {
+      "X": 77597,
+      "Y": -5632,
+      "Z": 68405,
+      "Room": 67,
+      "TargetType": 13
+    }
+  ],
+  "KEEL.TR2": [
+    {
+      "X": 67080,
+      "Y": 4352,
+      "Z": 41463,
+      "Room": 45,
+      "TargetType": 13
+    }
+  ],
+  "LIVING.TR2": [
+    {
+      "X": 82312,
+      "Y": -1770,
+      "Z": 78359,
+      "Room": 2,
+      "TargetType": 13
+    },
+    {
+      "X": 51624,
+      "Y": 68,
+      "Z": 62988,
+      "Room": 69,
+      "TargetType": 13
+    }
+  ],
+  "DECK.TR2": [
+    {
+      "X": 39936,
+      "Y": -10850,
+      "Z": 59864,
+      "Room": 52,
+      "TargetType": 13
+    },
+    {
+      "X": 58902,
+      "Y": 6147,
+      "Z": 36455,
+      "Room": 28,
+      "Angle": 0,
+      "TargetType": 14
+    },
+    {
+      "X": 51219,
+      "Y": 6400,
+      "Z": 25987,
+      "Room": 83,
+      "TargetType": 14
+    },
+    {
+      "X": 61951,
+      "Y": 5407,
+      "Z": 63872,
+      "Room": 11,
+      "TargetType": 14
+    },
+    {
+      "X": 54700,
+      "Y": 6147,
+      "Z": 51655,
+      "Room": 25,
+      "Angle": -32768,
+      "TargetType": 14
+    },
+    {
+      "X": 65994,
+      "Y": 6147,
+      "Z": 56323,
+      "Room": 24,
+      "Angle": -32768,
+      "TargetType": 14
+    },
+    {
+      "X": 67000,
+      "Y": 6147,
+      "Z": 57876,
+      "Room": 24,
+      "Angle": -16384,
+      "TargetType": 14
+    }
+  ],
+  "MONASTRY.TR2": [
+    {
+      "X": 83410,
+      "Y": -256,
+      "Z": 22013,
+      "Room": 23,
+      "TargetType": 13
+    }
+  ],
+  "CATACOMB.TR2": [
+    {
+      "X": 28199,
+      "Y": 7541,
+      "Z": 55795,
+      "Room": 107,
+      "TargetType": 13
+    },
+    {
+      "X": 28138,
+      "Y": 10752,
+      "Z": 40957,
+      "Room": 125,
+      "TargetType": 13
+    },
+    {
+      "X": 27154,
+      "Y": 7424,
+      "Z": 41554,
+      "Room": 43,
+      "Angle": 0,
+      "TargetType": 14
+    },
+    {
+      "X": 20090,
+      "Y": 5376,
+      "Z": 65976,
+      "Room": 22,
+      "TargetType": 14
+    },
+    {
+      "X": 10195,
+      "Y": 5485,
+      "Z": 64951,
+      "Room": 22,
+      "TargetType": 14
+    },
+    {
+      "X": 7558,
+      "Y": 5888,
+      "Z": 57185,
+      "Room": 21,
+      "TargetType": 14
+    },
+    {
+      "X": 14322,
+      "Y": 5372,
+      "Z": 55703,
+      "Room": 82,
+      "TargetType": 14
+    }
+  ],
+  "ICECAVE.TR2": [
+    {
+      "X": 27137,
+      "Y": 7186,
+      "Z": 59938,
+      "Room": 22,
+      "TargetType": 13
+    },
+    {
+      "X": 42343,
+      "Y": 3584,
+      "Z": 54809,
+      "Room": 31,
+      "TargetType": 13
+    },
+    {
+      "X": 53431,
+      "Y": 5632,
+      "Z": 57040,
+      "Room": 131,
+      "TargetType": 13
+    }
+  ],
+  "EMPRTOMB.TR2": [
+    {
+      "X": 33301,
+      "Y": 23930,
+      "Z": 48644,
+      "Room": 39,
+      "TargetType": 13
+    },
+    {
+      "X": 18972,
+      "Y": 12288,
+      "Z": 51688,
+      "Room": 8,
+      "TargetType": 13
+    },
+    {
+      "X": 13307,
+      "Y": 17151,
+      "Z": 25600,
+      "Room": 150,
+      "TargetType": 13
+    },
+    {
+      "X": 33321,
+      "Y": 23925,
+      "Z": 41409,
+      "Room": 39,
+      "TargetType": 13
+    }
+  ],
+  "FLOATING.TR2": [
+    {
+      "X": 32000,
+      "Y": 3584,
+      "Z": 82485,
+      "Room": 149,
+      "TargetType": 13
+    }
+  ],
+  "ASSAULT.TR2": [
+    {
+      "X": 17974,
+      "Y": 2560,
+      "Z": 95686,
+      "Room": 16,
+      "TargetType": 13
+    },
+    {
+      "X": 38376,
+      "Y": 2560,
+      "Z": 94819,
+      "Room": 90,
+      "TargetType": 13
+    },
+    {
+      "X": 41266,
+      "Y": 2816,
+      "Z": 56719,
+      "Room": 2,
+      "TargetType": 13
+    },
+    {
+      "X": 46696,
+      "Y": 2560,
+      "Z": 71179,
+      "Room": 50,
+      "TargetType": 13
+    },
+    {
+      "X": 26142,
+      "Y": 3648,
+      "Z": 92410,
+      "Room": 14,
+      "TargetType": 14
+    }
+  ],
+  "SKIDOO.TR2": [
+    {
+      "X": 101003,
+      "Y": -4770,
+      "Z": 20194,
+      "Room": 76,
+      "Angle": 0,
+      "TargetType": 13,
+      "Validated": false
+    },
+    {
+      "X": 67147,
+      "Y": -3698,
+      "Z": 26394,
+      "Room": 10,
+      "Angle": -16384,
+      "TargetType": 13
+    },
+    {
+      "X": 74363,
+      "Y": -2072,
+      "Z": 27035,
+      "Room": 10,
+      "Angle": -16384,
+      "TargetType": 13
+    },
+    {
+      "X": 71101,
+      "Y": -661,
+      "Z": 44458,
+      "Room": 7,
+      "Angle": -32768,
+      "TargetType": 13
+    },
+    {
+      "X": 69143,
+      "Y": 1024,
+      "Z": 44590,
+      "Room": 131,
+      "TargetType": 13
+    },
+    {
+      "X": 78164,
+      "Y": 0,
+      "Z": 38400,
+      "Room": 11,
+      "Angle": -16384,
+      "TargetType": 13
+    },
+    {
+      "X": 80989,
+      "Y": 1280,
+      "Z": 44490,
+      "Room": 26,
+      "Angle": -16384,
+      "TargetType": 13
+    },
+    {
+      "X": 66118,
+      "Y": -4241,
+      "Z": 50782,
+      "Room": 5,
+      "TargetType": 13
+    },
+    {
+      "X": 78530,
+      "Y": 0,
+      "Z": 46399,
+      "Room": 3,
+      "Angle": 0,
+      "TargetType": 13
+    },
+    {
+      "X": 64032,
+      "Y": 512,
+      "Z": 36858,
+      "Room": 12,
+      "Angle": -32768,
+      "TargetType": 13
+    },
+    {
+      "X": 52174,
+      "Y": 2648,
+      "Z": 45390,
+      "Room": 40,
+      "TargetType": 13
+    },
+    {
+      "X": 71168,
+      "Y": 1024,
+      "Z": 41472,
+      "Room": 12,
+      "TargetType": 13
+    },
+    {
+      "X": 44314,
+      "Y": 315,
+      "Z": 51718,
+      "Room": 53,
+      "Angle": 0,
+      "TargetType": 13
+    },
+    {
+      "X": 41867,
+      "Y": 2816,
+      "Z": 58802,
+      "Room": 53,
+      "TargetType": 13
+    },
+    {
+      "X": 52409,
+      "Y": -1024,
+      "Z": 55812,
+      "Room": 62,
+      "TargetType": 13
+    },
+    {
+      "X": 64377,
+      "Y": -1280,
+      "Z": 55794,
+      "Room": 137,
+      "TargetType": 13
+    },
+    {
+      "X": 52774,
+      "Y": -1436,
+      "Z": 65459,
+      "Room": 136,
+      "Angle": 0,
+      "TargetType": 13
+    },
+    {
+      "X": 58501,
+      "Y": -512,
+      "Z": 70240,
+      "Room": 136,
+      "TargetType": 13
+    },
+    {
+      "X": 57730,
+      "Y": -791,
+      "Z": 49444,
+      "Room": 46,
+      "TargetType": 13
+    },
+    {
+      "X": 71895,
+      "Y": -2048,
+      "Z": 60915,
+      "Room": 48,
+      "TargetType": 13
+    },
+    {
+      "X": 81018,
+      "Y": -1218,
+      "Z": 54836,
+      "Room": 47,
+      "Angle": -16384,
+      "TargetType": 13
+    },
+    {
+      "X": 91981,
+      "Y": -1235,
+      "Z": 72162,
+      "Room": 41,
+      "TargetType": 13
+    },
+    {
+      "X": 89026,
+      "Y": -2048,
+      "Z": 63150,
+      "Room": 55,
+      "TargetType": 13
+    },
+    {
+      "X": 95765,
+      "Y": -5498,
+      "Z": 93716,
+      "Room": 86,
+      "Angle": 0,
+      "TargetType": 13
+    },
+    {
+      "X": 89607,
+      "Y": -889,
+      "Z": 86532,
+      "Room": 41,
+      "TargetType": 13,
+      "Validated": false
+    },
+    {
+      "X": 84442,
+      "Y": -3328,
+      "Z": 90782,
+      "Room": 56,
+      "Angle": 0,
+      "TargetType": 13
+    },
+    {
+      "X": 88755,
+      "Y": -1181,
+      "Z": 77446,
+      "Room": 41,
+      "Angle": 0,
+      "TargetType": 13
+    },
+    {
+      "X": 55195,
+      "Y": -1536,
+      "Z": 95709,
+      "Room": 58,
+      "TargetType": 13
+    },
+    {
+      "X": 24048,
+      "Y": 6912,
+      "Z": 91454,
+      "Room": 132,
+      "TargetType": 13,
+      "Validated": false
+    },
+    {
+      "X": 9543,
+      "Y": -1617,
+      "Z": 88155,
+      "Room": 135,
+      "Angle": 0,
+      "TargetType": 13
+    },
+    {
+      "X": 4608,
+      "Y": -2048,
+      "Z": 88576,
+      "Room": 72,
+      "Angle": 0,
+      "TargetType": 13
+    },
+    {
+      "X": 18012,
+      "Y": -1536,
+      "Z": 83916,
+      "Room": 133,
+      "TargetType": 13
+    },
+    {
+      "X": 14670,
+      "Y": -2552,
+      "Z": 93847,
+      "Room": 14,
+      "Angle": 0,
+      "TargetType": 13
+    },
+    {
+      "X": 13250,
+      "Y": -2048,
+      "Z": 65055,
+      "Room": 64,
+      "TargetType": 13
+    },
+    {
+      "X": 25536,
+      "Y": -1280,
+      "Z": 54343,
+      "Room": 63,
+      "TargetType": 13
+    },
+    {
+      "X": 9236,
+      "Y": -2100,
+      "Z": 51409,
+      "Room": 67,
+      "Angle": 0,
+      "TargetType": 13
+    },
+    {
+      "X": 16909,
+      "Y": 0,
+      "Z": 65880,
+      "Room": 63,
+      "TargetType": 13
+    },
+    {
+      "X": 67587,
+      "Y": -822,
+      "Z": 59610,
+      "Room": 137,
+      "TargetType": 13
+    },
+    {
+      "X": 9732,
+      "Y": -2048,
+      "Z": 66137,
+      "Room": 67,
+      "TargetType": 13
+    },
+    {
+      "X": 19893,
+      "Y": -3730,
+      "Z": 48799,
+      "Room": 68,
+      "TargetType": 13
+    },
+    {
+      "X": 89712,
+      "Y": 1635,
+      "Z": 39139,
+      "Room": 98,
+      "Angle": 0,
+      "TargetType": 13,
+      "Validated": false
+    },
+    {
+      "X": 33076,
+      "Y": -4852,
+      "Z": 14788,
+      "Room": 105,
+      "TargetType": 13,
+      "Validated": false
+    },
+    {
+      "X": 54512,
+      "Y": -3900,
+      "Z": 23715,
+      "Room": 110,
+      "TargetType": 13,
+      "Validated": false
+    },
+    {
+      "X": 17892,
+      "Y": 14080,
+      "Z": 30845,
+      "Room": 128,
+      "Angle": 0,
+      "TargetType": 13,
+      "Validated": false
+    },
+    {
+      "X": 21969,
+      "Y": 3072,
+      "Z": 17895,
+      "Room": 112,
+      "Angle": 0,
+      "TargetType": 13,
+      "Validated": false
+    },
+    {
+      "X": 65102,
+      "Y": 1388,
+      "Z": 43766,
+      "Room": 16,
+      "TargetType": 13
+    },
+    {
+      "X": 77824,
+      "Y": -256,
+      "Z": 35509,
+      "Room": 4,
+      "TargetType": 13
+    },
+    {
+      "X": 13175,
+      "Y": 1024,
+      "Z": 58800,
+      "Room": 63,
+      "TargetType": 13,
+      "VehicleRequired": true
+    },
+    {
+      "X": 40429,
+      "Y": 2225,
+      "Z": 53603,
+      "Room": 53,
+      "TargetType": 13
+    },
+    {
+      "X": 88261,
+      "Y": -2048,
+      "Z": 56075,
+      "Room": 55,
+      "TargetType": 13
+    },
+    {
+      "X": 63094,
+      "Y": 256,
+      "Z": 55874,
+      "Room": 137,
+      "Angle": 0,
+      "TargetType": 13
+    }
+  ]
 }

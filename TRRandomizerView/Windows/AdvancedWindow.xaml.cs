@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using TRRandomizerCore.Helpers;
+using TRRandomizerCore.Secrets;
 using TRRandomizerView.Model;
 using TRRandomizerView.Utilities;
 
@@ -15,7 +16,7 @@ namespace TRRandomizerView.Windows
     /// </summary>
     public partial class AdvancedWindow : Window
     {
-        private static readonly string _darknessPreviewPath = @"pack://application:,,,/TRRandomizer;component/Resources/Darkness/{0}.jpg";
+        private static readonly string _darknessPreviewPath = @"pack://application:,,,/TRRandomizer;component/Resources/Darkness/{0}/{1}.jpg";
 
         public static readonly DependencyProperty MainDescriptionProperty = DependencyProperty.Register
         (
@@ -35,6 +36,11 @@ namespace TRRandomizerView.Windows
         public static readonly DependencyProperty HasItemDifficultyProperty = DependencyProperty.Register
         (
             nameof(HasItemDifficulty), typeof(bool), typeof(AdvancedWindow)
+        );
+
+        public static readonly DependencyProperty HasItemSpriteRandomizationProperty = DependencyProperty.Register
+        (
+            nameof(HasItemSpriteRandomization), typeof(bool), typeof(AdvancedWindow)
         );
 
         public static readonly DependencyProperty HasDifficultyProperty = DependencyProperty.Register
@@ -72,6 +78,35 @@ namespace TRRandomizerView.Windows
             nameof(HasGlobeOptions), typeof(bool), typeof(AdvancedWindow)
         );
 
+        public static readonly DependencyProperty HasTextureOptionsProperty = DependencyProperty.Register
+        (
+            nameof(HasTextureOptions), typeof(bool), typeof(AdvancedWindow)
+        );
+
+        public static readonly DependencyProperty HasAudioOptionsProperty = DependencyProperty.Register
+        (
+            nameof(HasAudioOptions), typeof(bool), typeof(AdvancedWindow)
+        );
+
+        public static readonly DependencyProperty HasBirdMonsterBehaviourProperty = DependencyProperty.Register
+        (
+            nameof(HasBirdMonsterBehaviour), typeof(bool), typeof(AdvancedWindow)
+        );
+
+        public static readonly DependencyProperty HasDragonSpawnProperty = DependencyProperty.Register
+        (
+            nameof(HasDragonSpawn), typeof(bool), typeof(AdvancedWindow)
+        );
+
+        public static readonly DependencyProperty HasHealthModeProperty = DependencyProperty.Register
+        (
+            nameof(HasHealthMode), typeof(bool), typeof(AdvancedWindow)
+        );
+        public static readonly DependencyProperty HasSecretCountModeProperty = DependencyProperty.Register
+        (
+            nameof(HasSecretCountMode), typeof(bool), typeof(AdvancedWindow)
+        );
+
         public static readonly DependencyProperty ControllerProperty = DependencyProperty.Register
         (
             nameof(ControllerProxy), typeof(ControllerOptions), typeof(AdvancedWindow)
@@ -99,6 +134,12 @@ namespace TRRandomizerView.Windows
         {
             get => (bool)GetValue(HasItemDifficultyProperty);
             set => SetValue(HasItemDifficultyProperty, value);
+        }
+
+        public bool HasItemSpriteRandomization
+        {
+            get => (bool)GetValue(HasItemSpriteRandomizationProperty);
+            set => SetValue(HasItemSpriteRandomizationProperty, value);
         }
 
         public bool HasDifficulty
@@ -141,6 +182,42 @@ namespace TRRandomizerView.Windows
         {
             get => (bool)GetValue(HasGlobeOptionsProperty);
             set => SetValue(HasGlobeOptionsProperty, value);
+        }
+
+        public bool HasTextureOptions
+        {
+            get => (bool)GetValue(HasTextureOptionsProperty);
+            set => SetValue(HasTextureOptionsProperty, value);
+        }
+
+        public bool HasAudioOptions
+        {
+            get => (bool)GetValue(HasAudioOptionsProperty);
+            set => SetValue(HasAudioOptionsProperty, value);
+        }
+
+        public bool HasBirdMonsterBehaviour
+        {
+            get => (bool)GetValue(HasBirdMonsterBehaviourProperty);
+            set => SetValue(HasBirdMonsterBehaviourProperty, value);
+        }
+
+        public bool HasDragonSpawn
+        {
+            get => (bool)GetValue(HasDragonSpawnProperty);
+            set => SetValue(HasDragonSpawnProperty, value);
+        }
+
+        public bool HasHealthMode
+        {
+            get => (bool)GetValue(HasHealthModeProperty);
+            set => SetValue(HasHealthModeProperty, value);
+        }
+
+        public bool HasSecretCountMode
+        {
+            get => (bool)GetValue(HasSecretCountModeProperty);
+            set => SetValue(HasSecretCountModeProperty, value);
         }
 
         public ControllerOptions ControllerProxy
@@ -198,6 +275,66 @@ namespace TRRandomizerView.Windows
                         break;
                 }
             }
+            if (HasBirdMonsterBehaviour)
+            {
+                switch (ControllerProxy.BirdMonsterBehaviour)
+                {
+                    case BirdMonsterBehaviour.Default:
+                        _defaultBirdBehaviourButton.IsChecked = true;
+                        break;
+                    case BirdMonsterBehaviour.Unconditional:
+                        _unconditionalBirdBehaviourButton.IsChecked = true;
+                        break;
+                    case BirdMonsterBehaviour.Docile:
+                        _docileBirdBehaviourButton.IsChecked = true;
+                        break;
+                }
+            }
+            if (HasDragonSpawn)
+            {
+                switch (ControllerProxy.DragonSpawnType)
+                {
+                    case DragonSpawnType.Default:
+                        _defaultDragonSpawnButton.IsChecked = true;
+                        break;
+                    case DragonSpawnType.Maximum:
+                        _maximumDragonSpawnButton.IsChecked = true;
+                        break;
+                    case DragonSpawnType.Minimum:
+                        _minimumDragonSpawnButton.IsChecked = true;
+                        break;
+                }
+            }
+            if (HasSecretCountMode)
+            {
+                switch (ControllerProxy.SecretCountMode)
+                {
+                    case TRSecretCountMode.Default:
+                        _defaultSecretCountButton.IsChecked = true;
+                        break;
+                    case TRSecretCountMode.Shuffled:
+                        _shuffledSecretCountButton.IsChecked = true;
+                        break;
+                    case TRSecretCountMode.Customized:
+                        _customizedSecretCountButton.IsChecked = true;
+                        break;
+                }
+            }
+            if (HasItemSpriteRandomization)
+            {
+                switch (ControllerProxy.SpriteRandoMode)
+                {
+                    case SpriteRandoMode.Default:
+                        _defaultSpriteRandoMode.IsChecked = true;
+                        break;
+                    case SpriteRandoMode.OneSpritePerLevel:
+                        _oneSpritePerLevelSpriteRandoMode.IsChecked = true;
+                        break;
+                    case SpriteRandoMode.OneSpritePerGame:
+                        _oneitemPerGameSpriteRandoMode.IsChecked = true;
+                        break;
+                }
+            }
         }
 
         private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)
@@ -208,7 +345,17 @@ namespace TRRandomizerView.Windows
 
         private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            _darknessPreview.Source = new BitmapImage(new Uri(string.Format(_darknessPreviewPath, ControllerProxy.NightModeDarkness)));
+            _darknessPreview.Source = new BitmapImage(new Uri(string.Format(_darknessPreviewPath, ControllerProxy.IsTR1 ? "TR1" : "TR2", ControllerProxy.NightModeDarkness)));
+        }
+
+        private void ExclusionsButton_Click(object sender, RoutedEventArgs e)
+        {
+            EnemyWindow ew = new EnemyWindow(ControllerProxy);
+            if (ew.ShowDialog() ?? false)
+            {
+                ControllerProxy.SelectableEnemyControls = ew.Controls;
+                ControllerProxy.ShowExclusionWarnings = ew.ShowExclusionWarnings;
+            }
         }
     }
 }

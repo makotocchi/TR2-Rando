@@ -2,7 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using TREnvironmentEditor;
+using TREnvironmentEditor.Helpers;
 using TREnvironmentEditor.Model;
+using TREnvironmentEditor.Model.Types;
+using TRFDControl;
+using TRFDControl.FDEntryTypes;
+using TRFDControl.Utilities;
 using TRGE.Core;
 using TRLevelReader.Helpers;
 using TRLevelReader.Model;
@@ -10,12 +15,13 @@ using TRLevelReader.Model.Enums;
 using TRModelTransporter.Transport;
 using TRRandomizerCore.Helpers;
 using TRRandomizerCore.Levels;
+using TRRandomizerCore.Textures;
+using TRRandomizerCore.Utilities;
 
 namespace TRRandomizerCore.Processors
 {
     public class TR3SequenceProcessor : TR3LevelProcessor
     {
-        private static readonly int _entityLimit = 256;
         private static readonly int _spikeHeightChange = -768;
 
         private static readonly Dictionary<TR3Entities, TR3Entities> _artefactAssignment = new Dictionary<TR3Entities, TR3Entities>
@@ -44,6 +50,8 @@ namespace TRRandomizerCore.Processors
         private List<string> _gameStrings;
 
         public GlobeDisplayOption GlobeDisplay { get; set; }
+        public TR3TextureMonitorBroker TextureMonitor { get; set; }
+        public ItemFactory ItemFactory { get; set; }
 
         public void Run()
         {
@@ -89,6 +97,12 @@ namespace TRRandomizerCore.Processors
                     ImportUPV(level);
                 }
             }
+            else if (level.Is(TR3LevelNames.ANTARC))
+            {
+                // Add a KillLara FD entry to room 185, where she would normally freeze
+                // to death anyway.
+                AmendAntarctica(level);
+            }
 
             if (level.Is(TR3LevelNames.WILLIE))
             {
@@ -114,6 +128,9 @@ namespace TRRandomizerCore.Processors
                 AmendSouthPacificSpikes(level);
             }
 
+            // #277 Make sure levels have artefact menu models because these vary based on original sequencing.
+            ImportArtefactMenuModels(level);
+
             // If this level is the first in an adventure, update the globe string to match
             if (_adventureStringSequences.ContainsKey((TR3Adventure)level.Sequence))
             {
@@ -136,12 +153,14 @@ namespace TRRandomizerCore.Processors
                 return;
             }
 
+            List<TR3Entities> upvImport = new List<TR3Entities> { TR3Entities.UPV };
             TR3ModelImporter importer = new TR3ModelImporter
             {
                 Level = level.Data,
                 LevelName = level.Name,
-                EntitiesToImport = new List<TR3Entities> { TR3Entities.UPV },
-                DataFolder = GetResourcePath(@"TR3\Models")
+                EntitiesToImport = upvImport,
+                DataFolder = GetResourcePath(@"TR3\Models"),
+                TexturePositionMonitor = TextureMonitor.CreateMonitor(level.Name, upvImport)
             };
 
             importer.Import();
@@ -149,23 +168,13 @@ namespace TRRandomizerCore.Processors
             List<TR2Entity> entities = level.Data.Entities.ToList();
             foreach (Location location in _upvLocations[level.Name])
             {
-                if (entities.Count == _entityLimit)
+                TR2Entity entity = ItemFactory.CreateItem(level.Name, entities, location);
+                if (entity == null)
                 {
                     break;
                 }
 
-                entities.Add(new TR2Entity
-                {
-                    TypeID = (short)TR3Entities.UPV,
-                    Room = (short)location.Room,
-                    X = location.X,
-                    Y = location.Y,
-                    Z = location.Z,
-                    Angle = location.Angle,
-                    Flags = 0,
-                    Intensity1 = -1,
-                    Intensity2 = -1
-                });
+                entity.TypeID = (short)TR3Entities.UPV;
             }
 
             level.Data.Entities = entities.ToArray();
@@ -177,6 +186,50 @@ namespace TRRandomizerCore.Processors
             foreach (TR2Entity quad in quads)
             {
                 quad.TypeID = (short)TR3Entities.UPV;
+            }
+        }
+
+        private void AmendAntarctica(TR3CombinedLevel level)
+        {
+            FDControl floorData = new FDControl();
+            floorData.ParseFromLevel(level.Data);
+            TRRoomSector sector = FDUtilities.GetRoomSector(53760, -3328, 28160, 185, level.Data, floorData);
+            if (sector.FDIndex == 0)
+            {
+                floorData.CreateFloorData(sector);
+            }
+
+            floorData.Entries[sector.FDIndex].Add(new FDKillLaraEntry
+            {
+                Setup = new FDSetup(FDFunctions.KillLara)
+            });
+
+            floorData.WriteToLevel(level.Data);
+        }
+
+        private void ImportArtefactMenuModels(TR3CombinedLevel level)
+        {
+            List<TRModel> models = level.Data.Models.ToList();
+            List<TR3Entities> imports = new List<TR3Entities>();
+            foreach (TR3Entities artefactMenuModel in TR3EntityUtilities.GetArtefactMenuModels())
+            {
+                if (models.Find(m => m.ID == (uint)artefactMenuModel) == null)
+                {
+                    imports.Add(artefactMenuModel);
+                }
+            }
+
+            if (imports.Count > 0)
+            {
+                TR3ModelImporter importer = new TR3ModelImporter
+                {
+                    Level = level.Data,
+                    LevelName = level.Name,
+                    EntitiesToImport = imports,
+                    DataFolder = GetResourcePath(@"TR3\Models")
+                };
+
+                importer.Import();
             }
         }
 
@@ -214,6 +267,23 @@ namespace TRRandomizerCore.Processors
 
             // Apply any changes needed for the boss fight
             AmendBossFight(level);
+
+            // Hide the old Willie AI pathing
+            for (int i = 0; i < level.Data.NumEntities; i++)
+            {
+                TR2Entity entity = level.Data.Entities[i];
+                TR3Entities type = (TR3Entities)entity.TypeID;
+                if (type == TR3Entities.AIPath_N || type == TR3Entities.AICheck_N)
+                {
+                    entity.TypeID = (short)TR3Entities.PistolAmmo_M_H;
+                    entity.X = 66048;
+                    entity.Y = 768;
+                    entity.Z = 67072;
+                    entity.Room = 5;
+                    ItemUtilities.HideEntity(entity);
+                    ItemFactory.FreeItem(level.Name, i);
+                }
+            }
         }
 
         private void AmendBossFight(TR3CombinedLevel level)

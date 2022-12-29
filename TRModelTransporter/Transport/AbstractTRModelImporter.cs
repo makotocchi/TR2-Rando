@@ -17,6 +17,7 @@ namespace TRModelTransporter.Transport
         public bool ClearUnusedSprites { get; set; }
         public string TextureRemapPath { get; set; }
         public ITexturePositionMonitor<E> TexturePositionMonitor { get; set; }
+        public bool SortModels { get; set; }
 
         protected AbstractTextureImportHandler<E, L, D> _textureHandler;
 
@@ -25,13 +26,18 @@ namespace TRModelTransporter.Transport
             EntitiesToImport = new List<E>();
             EntitiesToRemove = new List<E>();
             ClearUnusedSprites = false;
-            _textureHandler = CreateTextureHandler();
         }
 
         protected abstract AbstractTextureImportHandler<E, L, D> CreateTextureHandler();
 
         public void Import()
         {
+            if (_textureHandler == null)
+            {
+                _textureHandler = CreateTextureHandler();
+                _textureHandler.Data = Data;
+            }
+
             List<E> existingEntities = GetExistingModelTypes();
 
             if (EntitiesToRemove != null)
@@ -49,7 +55,19 @@ namespace TRModelTransporter.Transport
             }
 
             // Check for alias duplication
-            ValidateDefinitionList(existingEntities);
+            ValidateDefinitionList(existingEntities, standardModelDefinitions);
+
+            if (SortModels)
+            {
+                standardModelDefinitions.Sort(delegate (D d1, D d2)
+                {
+                    return d1.Entity.CompareTo(d2.Entity);
+                });
+                soundModelDefinitions.Sort(delegate (D d1, D d2)
+                {
+                    return d1.Entity.CompareTo(d2.Entity);
+                });
+            }
 
             try
             {
@@ -73,6 +91,7 @@ namespace TRModelTransporter.Transport
             List<E> cleanedEntities = new List<E>();
             foreach (E entity in EntitiesToRemove)
             {
+                bool entityClean = false;
                 if (Data.HasAliases(entity))
                 {
                     // Check if we have another alias in the import list different from any
@@ -90,10 +109,26 @@ namespace TRModelTransporter.Transport
 
                     if (!Equals(alias, importAlias))
                     {
-                        cleanedEntities.Add(entity);
+                        entityClean = true;
                     }
                 }
                 else if (!EntitiesToImport.Contains(entity))
+                {
+                    entityClean = true;
+                }
+
+                if (entityClean)
+                {
+                    // There may be null meshes dependent on this removal, so we can only remove it if they're
+                    // being removed as well.
+                    IEnumerable<E> exclusions = Data.GetRemovalExclusions(entity);
+                    if (exclusions.Count() > 0 && exclusions.All(EntitiesToRemove.Contains))
+                    {
+                        entityClean = false;
+                    }
+                }
+
+                if (entityClean)
                 {
                     cleanedEntities.Add(entity);
                 }
@@ -140,7 +175,7 @@ namespace TRModelTransporter.Transport
             EntitiesToImport = cleanedEntities;
         }
 
-        private void ValidateDefinitionList(List<E> modelEntities)
+        private void ValidateDefinitionList(List<E> modelEntities, List<D> importDefinitions)
         {
             Dictionary<E, List<E>> detectedAliases = new Dictionary<E, List<E>>();
             foreach (E entity in modelEntities)
@@ -158,14 +193,25 @@ namespace TRModelTransporter.Transport
 
             foreach (E masterEntity in detectedAliases.Keys)
             {
-                if (detectedAliases[masterEntity].Count > 1 && !Data.IsAliasDuplicatePermitted(masterEntity))
+                if (detectedAliases[masterEntity].Count > 1)
                 {
-                    throw new TransportException(string.Format
-                    (
-                        "Only one alias per entity can exist in the same level. [{0}] were found as aliases for {1}.",
-                        string.Join(", ", detectedAliases[masterEntity]),
-                        masterEntity.ToString()
-                    ));
+                    if (!Data.IsAliasDuplicatePermitted(masterEntity))
+                    {
+                        throw new TransportException(string.Format
+                        (
+                            "Only one alias per entity can exist in the same level. [{0}] were found as aliases for {1}.",
+                            string.Join(", ", detectedAliases[masterEntity]),
+                            masterEntity.ToString()
+                        ));
+                    }
+                    else if (Data.AliasPriority.ContainsKey(masterEntity))
+                    {
+                        // If we are importing two aliases such as LaraMiscAnim_Unwater and LaraMiscAnim_Xian,
+                        // allow the priority list to define exactly what imports. Otherwise while the prioritised
+                        // model will be imported, other aspects such as texture import will try to import both.
+                        E prioritisedType = Data.AliasPriority[masterEntity];
+                        importDefinitions.RemoveAll(d => detectedAliases[masterEntity].Contains(d.Alias) && !Equals(d.Alias, prioritisedType));
+                    }
                 }
             }
         }
@@ -174,13 +220,34 @@ namespace TRModelTransporter.Transport
         {
             if (modelEntities.Contains(nextEntity))
             {
-                // If the model already in the list is a dependency only, but the new one to add isn't, switch it
-                D definition = standardModelDefinitions.Find(m => Equals(m.Alias, nextEntity));
-                if (definition != null && definition.IsDependencyOnly && !isDependency)
+                // Are we allowed to replace it?
+                if (!Data.IsOverridePermitted(nextEntity))
                 {
-                    definition.IsDependencyOnly = false;
+                    // If the model already in the list is a dependency only, but the new one to add isn't, switch it
+                    D definition = standardModelDefinitions.Find(m => Equals(m.Alias, nextEntity));
+                    if (definition != null && definition.IsDependencyOnly && !isDependency)
+                    {
+                        definition.IsDependencyOnly = false;
+                    }
+                    else if (EntitiesToRemove.Contains(nextEntity))
+                    {
+                        EntitiesToRemove = new List<E>(EntitiesToRemove).Except(new List<E> { nextEntity });
+                    }
+
+                    // Avoid issues with cyclic dependencies by adding separately. The caveat here is
+                    // cyclic dependencies can't have further sub-dependencies.
+                    IEnumerable<E> cyclicDependencies = Data.GetCyclicDependencies(nextEntity);
+                    foreach (E cyclicDependency in cyclicDependencies)
+                    {
+                        if (!modelEntities.Contains(cyclicDependency) || Data.IsOverridePermitted(cyclicDependency))
+                        {
+                            modelEntities.Add(cyclicDependency);
+                            standardModelDefinitions.Add(LoadDefinition(cyclicDependency));
+                        }
+                    }
+
+                    return;
                 }
-                return;
             }
 
             D nextDefinition = LoadDefinition(nextEntity);

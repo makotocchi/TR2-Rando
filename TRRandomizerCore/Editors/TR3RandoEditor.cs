@@ -1,9 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using TRGE.Coord;
 using TRGE.Core;
+using TRRandomizerCore.Helpers;
 using TRRandomizerCore.Processors;
 using TRRandomizerCore.Randomizers;
+using TRRandomizerCore.Textures;
 
 namespace TRRandomizerCore.Editors
 {
@@ -16,7 +20,10 @@ namespace TRRandomizerCore.Editors
 
         protected override void ApplyConfig(Config config)
         {
-            Settings = new RandomizerSettings();
+            Settings = new RandomizerSettings
+            {
+                ExcludableEnemies = JsonConvert.DeserializeObject<Dictionary<short, string>>(File.ReadAllText(@"Resources\TR3\Restrictions\excludable_enemies.json"))
+            };
             Settings.ApplyConfig(config);
         }
 
@@ -69,10 +76,29 @@ namespace TRRandomizerCore.Editors
                 target += numLevels;
             }
 
+            if (Settings.RandomizeSecretRewardsPhysical)
+            {
+                target += numLevels;
+            }
+
             if (Settings.RandomizeNightMode)
             {
                 target += numLevels;
             }
+
+            if (Settings.RandomizeTextures)
+            {
+                // *3 because of multithreaded approach
+                target += numLevels * 3;
+            }
+
+            if (Settings.RandomizeStartPosition)
+            {
+                target += numLevels;
+            }
+
+            // Environment randomizer always runs
+            target += numLevels;
 
             return target;
         }
@@ -100,109 +126,212 @@ namespace TRRandomizerCore.Editors
                 scriptEditor.SaveScript();
             }
 
-            if (!monitor.IsCancelled && (Settings.RandomizeGameStrings || Settings.ReassignPuzzleNames))
-            {
-                monitor.FireSaveStateBeginning(TRSaveCategory.Custom, "Adjusting game strings");
-                new TR3GameStringRandomizer
-                {
-                    ScriptEditor = tr23ScriptEditor,
-                    Levels = levels,
-                    BasePath = wipDirectory,
-                    SaveMonitor = monitor,
-                    Settings = Settings
-                }.Randomize(Settings.GameStringsSeed);
-            }
+            // Shared tracker objects between randomizers
+            ItemFactory itemFactory = new ItemFactory(@"Resources\TR3\Items\repurposable_items.json");
+            TR3TextureMonitorBroker textureMonitor = new TR3TextureMonitorBroker();
 
-            if (!monitor.IsCancelled && Settings.RandomizeSequencing)
+            using (textureMonitor)
             {
-                monitor.FireSaveStateBeginning(TRSaveCategory.Custom, "Running level sequence checks");
-                new TR3SequenceProcessor
+                if (!monitor.IsCancelled && (Settings.RandomizeGameStrings || Settings.ReassignPuzzleNames))
                 {
-                    ScriptEditor = tr23ScriptEditor,
-                    Levels = levels,
-                    BasePath = wipDirectory,
-                    SaveMonitor = monitor,
-                    GlobeDisplay = Settings.GlobeDisplay
-                }.Run();
-            }
+                    monitor.FireSaveStateBeginning(TRSaveCategory.Custom, "Adjusting game strings");
+                    new TR3GameStringRandomizer
+                    {
+                        ScriptEditor = tr23ScriptEditor,
+                        Levels = levels,
+                        BasePath = wipDirectory,
+                        SaveMonitor = monitor,
+                        Settings = Settings
+                    }.Randomize(Settings.GameStringsSeed);
+                }
 
-            if (!monitor.IsCancelled && Settings.RandomizeSecrets)
-            {
-                monitor.FireSaveStateBeginning(TRSaveCategory.Custom, "Randomizing secrets");
-                new TR3SecretRandomizer
+                if (!monitor.IsCancelled && Settings.RandomizeSequencing)
                 {
-                    ScriptEditor = tr23ScriptEditor,
-                    Levels = levels,
-                    BasePath = wipDirectory,
-                    SaveMonitor = monitor,
-                    Settings = Settings
-                }.Randomize(Settings.SecretSeed);
-            }
+                    monitor.FireSaveStateBeginning(TRSaveCategory.Custom, "Running level sequence checks");
+                    new TR3SequenceProcessor
+                    {
+                        ScriptEditor = tr23ScriptEditor,
+                        Levels = levels,
+                        BasePath = wipDirectory,
+                        SaveMonitor = monitor,
+                        GlobeDisplay = Settings.GlobeDisplay,
+                        TextureMonitor = textureMonitor,
+                        ItemFactory = itemFactory
+                    }.Run();
+                }
 
-            if (!monitor.IsCancelled && Settings.RandomizeEnemies)
-            {
-                monitor.FireSaveStateBeginning(TRSaveCategory.Custom, "Randomizing enemies");
-                new TR3EnemyRandomizer
+                TR3EnvironmentRandomizer environmentRandomizer = new TR3EnvironmentRandomizer
                 {
                     ScriptEditor = tr23ScriptEditor,
                     Levels = levels,
                     BasePath = wipDirectory,
                     SaveMonitor = monitor,
                     Settings = Settings,
-                    //TextureMonitor = textureMonitor
-                }.Randomize(Settings.EnemySeed);
-            }
+                    TextureMonitor = textureMonitor
+                };
 
-            if (!monitor.IsCancelled && Settings.RandomizeAudio)
-            {
-                monitor.FireSaveStateBeginning(TRSaveCategory.Custom, "Randomizing audio tracks");
-                new TR3AudioRandomizer
+                if (!monitor.IsCancelled && Settings.RandomizeSecrets)
                 {
-                    ScriptEditor = tr23ScriptEditor,
-                    Levels = levels,
-                    BasePath = wipDirectory,
-                    SaveMonitor = monitor,
-                    Settings = Settings
-                }.Randomize(Settings.AudioSeed);
-            }
+                    monitor.FireSaveStateBeginning(TRSaveCategory.Custom, "Randomizing secrets");
+                    new TR3SecretRandomizer
+                    {
+                        ScriptEditor = tr23ScriptEditor,
+                        Levels = levels,
+                        BasePath = wipDirectory,
+                        SaveMonitor = monitor,
+                        Settings = Settings,
+                        TextureMonitor = textureMonitor,
+                        ItemFactory = itemFactory,
+                        MirrorLevels = environmentRandomizer.AllocateMirroredLevels(Settings.EnvironmentSeed)
+                    }.Randomize(Settings.SecretSeed);
+                }
 
-            if (!monitor.IsCancelled && Settings.RandomizeOutfits)
-            {
-                monitor.FireSaveStateBeginning(TRSaveCategory.Custom, "Randomizing outfits");
-                new TR3OutfitRandomizer
+                //Ensure item rando executes before enemy rando - as enemies may be assigned key items
+                //so we need to make sure the enemy rando can know this in advance.
+                if (!monitor.IsCancelled && Settings.RandomizeItems)
                 {
-                    ScriptEditor = tr23ScriptEditor,
-                    Levels = levels,
-                    BasePath = wipDirectory,
-                    SaveMonitor = monitor,
-                    Settings = Settings
-                }.Randomize(Settings.OutfitSeed);
-            }
+                    monitor.FireSaveStateBeginning(TRSaveCategory.Custom, "Randomizing items");
+                    new TR3ItemRandomizer
+                    {
+                        ScriptEditor = tr23ScriptEditor,
+                        Levels = levels,
+                        BasePath = wipDirectory,
+                        SaveMonitor = monitor,
+                        Settings = Settings,
+                        ItemFactory = itemFactory
+                    }.Randomize(Settings.ItemSeed);
+                }
 
-            if (!monitor.IsCancelled && Settings.RandomizeItems)
-            {
-                monitor.FireSaveStateBeginning(TRSaveCategory.Custom, "Randomizing items");
-                new TR3ItemRandomizer
+                if (!monitor.IsCancelled && Settings.RandomizeSecretRewardsPhysical)
                 {
-                    ScriptEditor = tr23ScriptEditor,
-                    Levels = levels,
-                    BasePath = wipDirectory,
-                    SaveMonitor = monitor,
-                    Settings = Settings
-                }.Randomize(Settings.ItemSeed);
-            }
+                    monitor.FireSaveStateBeginning(TRSaveCategory.Custom, "Randomizing secret rewards");
+                    new TR3SecretRewardRandomizer
+                    {
+                        ScriptEditor = scriptEditor,
+                        Levels = levels,
+                        BasePath = wipDirectory,
+                        SaveMonitor = monitor,
+                        Settings = Settings
+                    }.Randomize(Settings.SecretRewardsPhysicalSeed);
+                }
 
-            if (!monitor.IsCancelled && Settings.RandomizeNightMode)
-            {
-                monitor.FireSaveStateBeginning(TRSaveCategory.Custom, "Randomizing night mode");
-                new TR3NightModeRandomizer
+                if (!monitor.IsCancelled && Settings.RandomizeEnemies)
                 {
-                    ScriptEditor = tr23ScriptEditor,
-                    Levels = levels,
-                    BasePath = wipDirectory,
-                    SaveMonitor = monitor,
-                    Settings = Settings
-                }.Randomize(Settings.NightModeSeed);
+                    monitor.FireSaveStateBeginning(TRSaveCategory.Custom, "Randomizing enemies");
+                    new TR3EnemyRandomizer
+                    {
+                        ScriptEditor = tr23ScriptEditor,
+                        Levels = levels,
+                        BasePath = wipDirectory,
+                        SaveMonitor = monitor,
+                        Settings = Settings,
+                        TextureMonitor = textureMonitor,
+                        ItemFactory = itemFactory
+                    }.Randomize(Settings.EnemySeed);
+                }
+
+                if (!monitor.IsCancelled && Settings.RandomizeStartPosition)
+                {
+                    monitor.FireSaveStateBeginning(TRSaveCategory.Custom, "Randomizing start positions");
+                    new TR3StartPositionRandomizer
+                    {
+                        ScriptEditor = tr23ScriptEditor,
+                        Levels = levels,
+                        BasePath = wipDirectory,
+                        SaveMonitor = monitor,
+                        Settings = Settings
+                    }.Randomize(Settings.StartPositionSeed);
+                }
+
+                if (!monitor.IsCancelled)
+                {
+                    monitor.FireSaveStateBeginning(TRSaveCategory.Custom, Settings.RandomizeEnvironment ? "Randomizing environment" : "Applying default environment packs");
+                    environmentRandomizer.Randomize(Settings.EnvironmentSeed);
+                }
+
+                if (!monitor.IsCancelled && Settings.RandomizeAudio)
+                {
+                    monitor.FireSaveStateBeginning(TRSaveCategory.Custom, "Randomizing audio tracks");
+                    new TR3AudioRandomizer
+                    {
+                        ScriptEditor = tr23ScriptEditor,
+                        Levels = levels,
+                        BasePath = wipDirectory,
+                        SaveMonitor = monitor,
+                        Settings = Settings
+                    }.Randomize(Settings.AudioSeed);
+                }
+
+                if (!monitor.IsCancelled && Settings.RandomizeOutfits)
+                {
+                    monitor.FireSaveStateBeginning(TRSaveCategory.Custom, "Randomizing outfits");
+                    new TR3OutfitRandomizer
+                    {
+                        ScriptEditor = tr23ScriptEditor,
+                        Levels = levels,
+                        BasePath = wipDirectory,
+                        SaveMonitor = monitor,
+                        Settings = Settings,
+                        TextureMonitor = textureMonitor
+                    }.Randomize(Settings.OutfitSeed);
+                }
+
+                if (!monitor.IsCancelled && Settings.RandomizeNightMode && !Settings.RandomizeVfx)
+                {
+                    monitor.FireSaveStateBeginning(TRSaveCategory.Custom, "Randomizing night mode");
+                    new TR3NightModeRandomizer
+                    {
+                        ScriptEditor = tr23ScriptEditor,
+                        Levels = levels,
+                        BasePath = wipDirectory,
+                        SaveMonitor = monitor,
+                        Settings = Settings,
+                        TextureMonitor = textureMonitor
+                    }.Randomize(Settings.NightModeSeed);
+                }
+
+                if (!monitor.IsCancelled && Settings.RandomizeNightMode && Settings.RandomizeVfx)
+                {
+                    monitor.FireSaveStateBeginning(TRSaveCategory.Custom, "Applying Filter to Random Levels");
+                    new TR3VfxRandomizer
+                    {
+                        ScriptEditor = tr23ScriptEditor,
+                        Levels = levels,
+                        BasePath = wipDirectory,
+                        SaveMonitor = monitor,
+                        Settings = Settings
+                    }.Randomize(Settings.NightModeSeed);
+                }
+
+                if (!monitor.IsCancelled)
+                {
+                    if (Settings.RandomizeTextures)
+                    {
+                        monitor.FireSaveStateBeginning(TRSaveCategory.Custom, "Randomizing textures");
+                        new TR3TextureRandomizer
+                        {
+                            ScriptEditor = tr23ScriptEditor,
+                            Levels = levels,
+                            BasePath = wipDirectory,
+                            SaveMonitor = monitor,
+                            Settings = Settings,
+                            TextureMonitor = textureMonitor
+                        }.Randomize(Settings.TextureSeed);
+                    }
+                    else if (Settings.RandomizeNightMode && !Settings.RandomizeVfx)
+                    {
+                        monitor.FireSaveStateBeginning(TRSaveCategory.Custom, "Randomizing night mode textures");
+                        new TR3TextureRandomizer
+                        {
+                            ScriptEditor = tr23ScriptEditor,
+                            Levels = levels,
+                            BasePath = wipDirectory,
+                            SaveMonitor = monitor,
+                            Settings = Settings,
+                            TextureMonitor = textureMonitor
+                        }.Randomize(Settings.NightModeSeed);
+                    }
+                }
             }
         }
     }

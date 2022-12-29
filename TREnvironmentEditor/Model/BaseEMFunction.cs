@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using Newtonsoft.Json;
+using System.Collections.Generic;
 using System.Linq;
+using TREnvironmentEditor.Helpers;
 using TRLevelReader.Model;
 
 namespace TREnvironmentEditor.Model
@@ -11,8 +13,12 @@ namespace TREnvironmentEditor.Model
         // Sector X/Z length
         public static readonly int SectorSize = 1024;
 
+        [JsonProperty(Order = -2)]
+        public string Comments { get; set; }
+        [JsonProperty(Order = -2, DefaultValueHandling = DefaultValueHandling.Include)]
         public EMType EMType { get; set; }
 
+        public abstract void ApplyToLevel(TRLevel level);
         public abstract void ApplyToLevel(TR2Level level);
         public abstract void ApplyToLevel(TR3Level level);
 
@@ -39,11 +45,26 @@ namespace TREnvironmentEditor.Model
             return vertices;
         }
 
+        public int CreateRoomVertex(TRRoom room, TRVertex vert, short lighting = 6574)
+        {
+            TRRoomVertex v = new TRRoomVertex
+            {
+                Lighting = lighting,
+                Vertex = vert
+            };
+
+            List<TRRoomVertex> verts = room.RoomData.Vertices.ToList();
+            verts.Add(v);
+            room.RoomData.Vertices = verts.ToArray();
+            room.RoomData.NumVertices++;
+            return verts.Count - 1;
+        }
+
         public int CreateRoomVertex(TR2Room room, TRVertex vert, short lighting = 6574, short lighting2 = 6574)
         {
             TR2RoomVertex v = new TR2RoomVertex
             {
-                Attributes = 32784, // This stops it shimmering if viewed from underwater, should be configuratble
+                Attributes = 32784, // This stops it shimmering if viewed from underwater, should be configurable
                 Lighting = lighting,
                 Lighting2 = lighting2,
                 Vertex = vert
@@ -56,13 +77,32 @@ namespace TREnvironmentEditor.Model
             return verts.Count - 1;
         }
 
+        public int CreateRoomVertex(TR3Room room, TRVertex vert, short lighting = 6574, ushort colour = 6574, bool useCaustics = false, bool useWaveMovement = false)
+        {
+            TR3RoomVertex v = new TR3RoomVertex
+            {
+                Attributes = 32784,
+                Lighting = lighting,
+                Colour = colour,
+                UseCaustics = useCaustics,
+                UseWaveMovement = useWaveMovement,
+                Vertex = vert
+            };
+
+            List<TR3RoomVertex> verts = room.RoomData.Vertices.ToList();
+            verts.Add(v);
+            room.RoomData.Vertices = verts.ToArray();
+            room.RoomData.NumVertices++;
+            return verts.Count - 1;
+        }
+
         /// <summary>
         /// Gets the indices of rooms above or below the provided room.
         /// </summary>
-        public ISet<byte> GetAdjacentRooms(TR2Room room, bool above)
+        public ISet<byte> GetAdjacentRooms(IEnumerable<TRRoomSector> sectors, bool above)
         {
             ISet<byte> rooms = new HashSet<byte>();
-            foreach (TRRoomSector sector in room.SectorList)
+            foreach (TRRoomSector sector in sectors)
             {
                 byte roomNumber = above ? sector.RoomAbove : sector.RoomBelow;
                 if (roomNumber != 255)
@@ -73,15 +113,34 @@ namespace TREnvironmentEditor.Model
             return rooms;
         }
 
-        // This allows us to access the last item in a specific list, so if for example one mod has created
-        // a new room, subsequent mods can retrieve its number using short.MaxValue.
-        protected int ConvertItemNumber(int itemNumber, ushort numItems)
+        protected EMLevelData GetData(TRLevel level)
         {
-            if (itemNumber == short.MaxValue)
+            return new EMLevelData
             {
-                itemNumber = numItems - 1;
-            }
-            return itemNumber;
+                NumCameras = level.NumCameras,
+                NumEntities = level.NumEntities,
+                NumRooms = level.NumRooms
+            };
+        }
+
+        protected EMLevelData GetData(TR2Level level)
+        {
+            return new EMLevelData
+            {
+                NumCameras = level.NumCameras,
+                NumEntities = level.NumEntities,
+                NumRooms = level.NumRooms
+            };
+        }
+
+        protected EMLevelData GetData(TR3Level level)
+        {
+            return new EMLevelData
+            {
+                NumCameras = level.NumCameras,
+                NumEntities = level.NumEntities,
+                NumRooms = level.NumRooms
+            };
         }
     }
 }

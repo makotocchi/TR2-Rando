@@ -1,0 +1,201 @@
+{
+  "All": [],
+  "NonPurist": [],
+  "Any": [],
+  "AllWithin": [],
+  "OneOf": [],
+  "ConditionalAllWithin": [],
+  "ConditionalAll": [
+    {
+      "Condition": {
+        "Comments": "Check if enemy #63 is a hostile human and if not, make some changes to allow Lara to open room 169 herself.",
+        "ConditionType": 0,
+        "EntityIndex": 63,
+        "EntityTypes": [
+          46,
+          51,
+          53,
+          56,
+          60,
+          61,
+          63
+        ]
+      },
+      "OnFalse": [
+        {
+          "Comments": "Convert one of the now unused AI entities into a button.",
+          "EMType": 45,
+          "EntityIndex": 107,
+          "NewEntityType": 128
+        },
+        {
+          "Comments": "Convert the AI entities under the enemy into pickups.",
+          "EMType": 45,
+          "EntityIndex": 62,
+          "NewEntityType": 176
+        },
+        {
+          "Comments": "Convert the AI entities under the enemy into pickups.",
+          "EMType": 45,
+          "EntityIndex": 64,
+          "NewEntityType": 176
+        },
+        {
+          "Comments": "Remove the old heavy trigger.",
+          "EMType": 62,
+          "Locations": [
+            {
+              "X": 91648,
+              "Y": -4864,
+              "Z": 82432,
+              "Room": 74
+            }
+          ]
+        },
+        {
+          "Comments": "Make a trigger for the button.",
+          "EMType": 61,
+          "Locations": [
+            {
+              "X": 91648,
+              "Y": -4864,
+              "Z": 82432,
+              "Room": 74
+            }
+          ],
+          "Trigger": {
+            "TrigType": 2,
+            "OneShot": true,
+            "Mask": 31,
+            "SwitchOrKeyRef": 107,
+            "Actions": [
+              {
+                "Parameter": 226
+              },
+              {
+                "Parameter": 227
+              },
+              {
+                "Parameter": 228
+              }
+            ]
+          }
+        },
+        {
+          "Comments": "Remove the hand scanner static mesh.",
+          "EMType": 25,
+          "ClearFromRooms": {
+            "39": [
+              74
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "Condition": {
+        "Comments": "Check if enemy #132 is a prisoner and if not, make some changes to allow Lara to open the trapdoor in this area herself.",
+        "ConditionType": 0,
+        "EntityIndex": 132,
+        "EntityType": 62
+      },
+      "OnFalse": [
+        {
+          "Comments": "Move the second enemy spawn trigger beside the ladder.",
+          "EMType": 67,
+          "BaseLocation": {
+            "X": 39424,
+            "Y": -1024,
+            "Z": 50688,
+            "Room": 93
+          },
+          "NewLocation": {
+            "X": 41472,
+            "Y": -768,
+            "Z": 50688,
+            "Room": 93
+          }
+        },
+        {
+          "Comments": "Convert one of the now unused AI entities into a button.",
+          "EMType": 45,
+          "EntityIndex": 131,
+          "NewEntityType": 128
+        },
+        {
+          "Comments": "Convert the others into pickup.",
+          "EMType": 45,
+          "EntityIndex": 133,
+          "NewEntityType": 176
+        },
+        {
+          "EMType": 45,
+          "EntityIndex": 134,
+          "NewEntityType": 170
+        },
+        {
+          "Comments": "Move the button so Lara can reach it.",
+          "EMType": 44,
+          "EntityIndex": 131,
+          "TargetLocation": {
+            "X": 39424,
+            "Y": -1024,
+            "Z": 50688,
+            "Room": 93
+          }
+        },
+        {
+          "Comments": "Make a trigger for the button.",
+          "EMType": 61,
+          "Locations": [
+            {
+              "X": 39424,
+              "Y": -1024,
+              "Z": 50688,
+              "Room": 93
+            }
+          ],
+          "Trigger": {
+            "TrigType": 2,
+            "Mask": 31,
+            "SwitchOrKeyRef": 131,
+            "Actions": [
+              {
+                "Parameter": 130
+              }
+            ]
+          }
+        },
+        {
+          "Comments": "Remove the old heavy trigger.",
+          "EMType": 62,
+          "Locations": [
+            {
+              "X": 38400,
+              "Y": -2304,
+              "Z": 50688,
+              "Room": 87
+            }
+          ]
+        },
+        {
+          "Comments": "Remove the hand scanner static mesh.",
+          "EMType": 25,
+          "ClearFromRooms": {
+            "39": [
+              87
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "Mirrored": [
+    {
+      "Comments": "Make door #125 a vertical one as this corridor is awkward.",
+      "EMType": 45,
+      "EntityIndex": 125,
+      "NewEntityType": 136
+    }
+  ]
+}

@@ -70,6 +70,7 @@ namespace TRLevelReader.Model.Enums
         MonkWithLongStick,
         MonkWithKnifeStick,
         FallingBlock,
+        FallingBlock2,
         LooseBoards = 57,
         SandbagOrBallsack,
         TeethSpikesOrGlassShards,
@@ -291,6 +292,7 @@ namespace TRLevelReader.Model.Enums
         LaraMiscAnim_H_Xian,       // Death-by-Guard, inspecting dagger
         LaraMiscAnim_H_Wall,       // Death-by-Barney
         LaraMiscAnim_H_HSH,        // Inspecting dagger at home
+        LaraMiscAnim_H_Venice,     // Bartoli's detonator
 
         // Split Lara's outfits and weapon animations
         LaraSun = 3000,

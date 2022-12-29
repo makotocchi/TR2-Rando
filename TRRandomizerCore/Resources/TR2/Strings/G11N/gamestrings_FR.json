@@ -314,7 +314,7 @@
       ],
       "Keys": {
         "0": [
-          "Clé des livre",
+          "Clé des livres",
           "Une clé",
           "La clé",
           "Clé 1",
@@ -341,7 +341,8 @@
           "Clé facultative",
           "Clé qui ne sert pas",
           "Ça va péter !",
-          "Grimpe par le toit"
+          "Grimpe par le toit",
+          "Pastille Vichy"
         ]
       }
     },
@@ -358,7 +359,7 @@
         "La Flûte Magique",
         "Le niveau skipable",
         "Showtime !",
-        "Le spéctacle commence"
+        "Le spectacle commence"
       ],
       "Keys": {
         "0": [
@@ -406,7 +407,7 @@
         "Prison",
         "RIG.TR2",
         "Mer Adriatique",
-        "Tour à pétrol",
+        "Tour à pétrole",
         "Pollution",
         "Où-suis-je ?",
         "Sans armes ?",

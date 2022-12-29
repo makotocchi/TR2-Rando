@@ -10,10 +10,6 @@ namespace TRModelTransporter.Handlers
 {
     public class TR2TextureImportHandler : AbstractTextureImportHandler<TR2Entities, TR2Level, TR2ModelDefinition>
     {
-        private static readonly int _maxTextures = 2048;
-
-        public override int MaximumTextures => _maxTextures;
-
         protected override IEnumerable<TRSpriteSequence> GetExistingSpriteSequences()
         {
             return _level.SpriteSequences;
@@ -48,6 +44,14 @@ namespace TRModelTransporter.Handlers
             {
                 removals.Add(TR2Entities.Map_M_U);
             }
+
+            // Marco is in Floaters by default but he isn't used. Removing the textures will break precompiled deduplication
+            // so this remains unimplemented for the time being.
+            //List<TRModel> models = _level.Models.ToList();
+            //if (models.Find(m => m.ID == (uint)TR2Entities.MarcoBartoli) != null && models.Find(m => m.ID == (uint)TR2Entities.DragonBack_H) == null)
+            //{
+            //    removals.Add(TR2Entities.MarcoBartoli);
+            //}
 
             if (_entitiesToRemove != null)
             {
@@ -101,7 +105,12 @@ namespace TRModelTransporter.Handlers
                     }
                     else
                     {
-                        _level.SpriteSequences[blastSequence].Offset = sequences[grenadeSequence].Offset;
+                        // #275 Rather than just pointing the blast sequence offset to the grenade sequence offset,
+                        // retain the original sprite texture objects but just remap where they point in the tiles.
+                        for (int i = 0; i < sequences[grenadeSequence].NegativeLength * -1; i++)
+                        {
+                            _level.SpriteTextures[_level.SpriteSequences[blastSequence].Offset + i] = _level.SpriteTextures[_level.SpriteSequences[grenadeSequence].Offset + i];
+                        }
                     }
                 }
             }

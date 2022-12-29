@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Threading;
 using TRRandomizerCore;
 using TRRandomizerView.Events;
 using TRRandomizerView.Model;
@@ -58,6 +59,8 @@ namespace TRRandomizerView.Controls
 
         public TRRandomizerController Controller;
 
+        private readonly DispatcherTimer _popupTimer;
+
         public bool DevelopmentMode
         {
             get => _options.DevelopmentMode;
@@ -72,6 +75,12 @@ namespace TRRandomizerView.Controls
             _dirty = false;
             _showExternalModPrompt = true;
             _reloadRequested = false;
+
+            _popupTimer = new DispatcherTimer
+            {
+                Interval = new TimeSpan(0, 0, 0, 1, 500)
+            };
+            _popupTimer.Tick += PopupTimer_Tick;
         }
 
         private void Controller_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -251,6 +260,11 @@ namespace TRRandomizerView.Controls
             return _options.RandomizationPossible;
         }
 
+        public bool CanEditCommunitySettings()
+        {
+            return _options.IsTR1Main;
+        }
+
         public void OpenBackupFolder()
         {
             Process.Start("explorer.exe", Controller.BackupDirectory);
@@ -288,6 +302,30 @@ namespace TRRandomizerView.Controls
                     MessageWindow.ShowException(e);
                 }
             }
+        }
+
+        public bool DeleteBackup()
+        {
+            if (MessageWindow.ShowConfirm("The files that were backed up when this folder was first opened will be deleted and the editor will be closed.\n\nDo you wish to proceed?"))
+            {
+                try
+                {
+                    _showExternalModPrompt = false;
+                    TRRandomizerCoord.Instance.ClearCurrentBackup();
+                    _dirty = false;
+                    return true;
+                }
+                catch (Exception e)
+                {
+                    MessageWindow.ShowException(e);
+                }
+                finally
+                {
+                    _showExternalModPrompt = true;
+                }
+            }
+
+            return false;
         }
 
         private void EditorControl_Drop(object sender, DragEventArgs e)
@@ -355,12 +393,40 @@ namespace TRRandomizerView.Controls
         {
             if (_options.RandomizationPossible)
             {
+                _popupTimer.Stop();
                 _options.RandomizeActiveSeeds();
+                ShowPopupMessage("Seeds Randomized!");
             }
             else
             {
                 ShowInvalidSelectionMessage();
             }
+        }
+
+        public void RandomizeAllOptions()
+        {
+            if (_options.RandomizationPossible)
+            {
+                _popupTimer.Stop();
+                _options.RandomizeActiveOptions();
+                ShowPopupMessage("Options Randomized!");
+            }
+            else
+            {
+                ShowInvalidSelectionMessage();
+            }
+        }
+
+        private void ShowPopupMessage(string text)
+        {
+            _popupTextBlock.Text = text;
+            _feedbackPopup.IsOpen = true;
+            _popupTimer.Start();
+        }
+
+        private void PopupTimer_Tick(object sender, EventArgs e)
+        {
+            _feedbackPopup.IsOpen = false;
         }
 
         public void ConfigureGlobalSeed()
@@ -371,6 +437,12 @@ namespace TRRandomizerView.Controls
                 _options.SetGlobalSeed(gsw.Seed);
                 _lastGlobalSeed = gsw.Seed;
             }
+        }
+
+        public void EditCommunitySettings()
+        {
+            Tomb1MainWindow window = new Tomb1MainWindow(_options);
+            window.ShowDialog();
         }
 
         private void ShowInvalidSelectionMessage()

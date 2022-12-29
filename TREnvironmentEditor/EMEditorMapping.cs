@@ -9,19 +9,27 @@ namespace TREnvironmentEditor
     public class EMEditorMapping
     {
         public static readonly EMConverter Converter = new EMConverter();
+        public static readonly JsonSerializerSettings Serializer = new JsonSerializerSettings
+        {
+            ContractResolver = new EMSerializationResolver(),
+            DefaultValueHandling = DefaultValueHandling.Ignore,
+            Formatting = Formatting.Indented
+        };
 
         public EMEditorSet All { get; set; }
         public EMEditorSet NonPurist { get; set; }
         public List<EMEditorSet> Any { get; set; }
         public List<List<EMEditorSet>> AllWithin { get; set; }
-        public List<EMConditionalEditorSet> ConditionalAllWithin { get; set; }
         public List<EMEditorGroupedSet> OneOf { get; set; }
+        public List<EMConditionalEditorSet> ConditionalAllWithin { get; set; }
+        public List<EMConditionalSingleEditorSet> ConditionalAll { get; set; }        
         public EMEditorSet Mirrored { get; set; }
         public Dictionary<ushort, ushort> AlternativeTextures { get; set; }
 
         public EMEditorMapping()
         {
             All = new EMEditorSet();
+            ConditionalAll = new List<EMConditionalSingleEditorSet>();
             NonPurist = new EMEditorSet();
             Any = new List<EMEditorSet>();
             AllWithin = new List<List<EMEditorSet>>();
@@ -40,6 +48,16 @@ namespace TREnvironmentEditor
             return null;
         }
 
+        public void SerializeTo(string packPath)
+        {
+            File.WriteAllText(packPath, Serialize());
+        }
+
+        public string Serialize()
+        {
+            return JsonConvert.SerializeObject(this, Serializer);
+        }
+
         public void AlternateTextures()
         {
             if (AlternativeTextures == null)
@@ -50,6 +68,10 @@ namespace TREnvironmentEditor
             if (All != null)
             {
                 All.RemapTextures(AlternativeTextures);
+            }
+            if (ConditionalAll != null)
+            {
+                ConditionalAll.ForEach(s => s.RemapTextures(AlternativeTextures));
             }
             if (NonPurist != null)
             {
@@ -65,19 +87,11 @@ namespace TREnvironmentEditor
             }
             if (ConditionalAllWithin != null)
             {
-                foreach (EMConditionalEditorSet condSet in ConditionalAllWithin)
-                {
-                    condSet.OnTrue.ForEach(s => s.RemapTextures(AlternativeTextures));
-                    condSet.OnFalse.ForEach(s => s.RemapTextures(AlternativeTextures));
-                }
+                ConditionalAllWithin.ForEach(s => s.RemapTextures(AlternativeTextures));
             }
             if (OneOf != null)
             {
-                foreach (EMEditorGroupedSet group in OneOf)
-                {
-                    group.Leader.RemapTextures(AlternativeTextures);
-                    group.Followers.ForEach(s => s.RemapTextures(AlternativeTextures));
-                }
+                OneOf.ForEach(s => s.RemapTextures(AlternativeTextures));
             }
             if (Mirrored != null)
             {

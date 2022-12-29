@@ -1,0 +1,147 @@
+{
+  "All": [],
+  "NonPurist": [
+    {
+      "Comments": "Patch the hole in the wall in room 27.",
+      "EMType": 23,
+      "Modifications": [
+        {
+          "RoomNumber": 27,
+          "FaceIndex": 135,
+          "VertexChanges": {
+            "0": {
+              "Y": -512
+            },
+            "3": {
+              "Y": 256
+            }
+          }
+        }
+      ]
+    },
+    {
+      "Comments": "Fix the out of place ToQ texture.",
+      "EMType": 21,
+      "TextureMap": {
+        "69": {
+          "6": {
+            "Triangles": [
+              0
+            ]
+          }
+        }
+      }
+    },
+    {
+      "Comments": "Patch the hole in the wall in room 51.",
+      "EMType": 23,
+      "Modifications": [
+        {
+          "RoomNumber": 51,
+          "FaceIndex": 165,
+          "VertexChanges": {
+            "0": {
+              "Y": 256
+            },
+            "1": {
+              "Y": -768
+            }
+          }
+        }
+      ]
+    },
+    {
+      "Comments": "Add the missing underwater texture when entering the tomb.",
+      "EMType": 26,
+      "Quads": {
+        "90": [
+          {
+            "Vertices": [
+              49,
+              42,
+              65,
+              68
+            ],
+            "Texture": 10
+          }
+        ]
+      }
+    }
+  ],
+  "Any": [],
+  "AllWithin": [],
+  "OneOf": [],
+  "ConditionalAllWithin": [],
+  "ConditionalAll": [
+    {
+      "Condition": {
+        "Comments": "Check if key item #33 is in its default position. If not, move the trigger to its new location.",
+        "ConditionType": 0,
+        "EntityIndex": 33,
+        "X": 27136,
+        "Y": -3584,
+        "Z": 1536,
+        "Room": 40
+      },
+      "OnFalse": [
+        {
+          "EMType": 67,
+          "BaseLocation": {
+            "X": 27136,
+            "Y": -3584,
+            "Z": 1536,
+            "Room": 40
+          },
+          "EntityLocation": 33
+        }
+      ]
+    },
+    {
+      "Condition": {
+        "Comments": "Check if key item #40 is in its default position. If not, move the trigger to its new location.",
+        "ConditionType": 0,
+        "EntityIndex": 40,
+        "X": 81408,
+        "Y": 7936,
+        "Z": 9728,
+        "Room": 48
+      },
+      "OnFalse": [
+        {
+          "EMType": 67,
+          "BaseLocation": {
+            "X": 81408,
+            "Y": 7936,
+            "Z": 9728,
+            "Room": 48
+          },
+          "EntityLocation": 40
+        }
+      ]
+    },
+    {
+      "Condition": {
+        "Comments": "Check if key item #53 is in its default position. If not, move the trigger to its new location.",
+        "ConditionType": 0,
+        "EntityIndex": 53,
+        "X": 34304,
+        "Y": -512,
+        "Z": 19968,
+        "Room": 58
+      },
+      "OnFalse": [
+        {
+          "EMType": 67,
+          "BaseLocation": {
+            "X": 34304,
+            "Y": -512,
+            "Z": 19968,
+            "Room": 58
+          },
+          "EntityLocation": 53
+        }
+      ]
+    }
+  ],
+  "Mirrored": []
+}

@@ -52,7 +52,7 @@
             CustomIntDefault="{Binding TotalLevelCount}"
             CustomIntMaxValue="{Binding TotalLevelCount}"
             CustomIntTitle="Number of levels"/>
-        
+
         <ctrl:ManagedSeedAdvancedControl
             Visibility="{Binding IsGlobeDisplayTypeSupported, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToCollapsedConverter}}"
             Grid.Row="0"
@@ -96,6 +96,24 @@
         <ctrl:ManagedSeedIntControl 
             Grid.Row="2"
             Grid.Column="0"
+            Visibility="{Binding IsTR1, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToCollapsedConverter}}"
+            IsEnabled="{Binding IsAmmolessTypeSupported, UpdateSourceTrigger=PropertyChanged}"
+            IsActive="{Binding RandomizeAmmolessLevels, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+            Title="Randomize Ammoless Levels"
+            Text="Randomize the levels in which Lara loses her ammo."
+            SeedMinValue="1"
+            SeedMaxValue="{Binding MaxSeedValue}"
+            SeedValue="{Binding AmmolessLevelsSeed, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+            CustomInt="{Binding AmmolessLevelCount, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+            CustomIntMinValue="0"
+            CustomIntDefault="{Binding DefaultAmmolessLevelCount}"
+            CustomIntMaxValue="{Binding MaximumLevelCount}"
+            CustomIntTitle="Number of levels"/>
+
+        <ctrl:ManagedSeedIntControl 
+            Grid.Row="2"
+            Grid.Column="0"
+            Visibility="{Binding IsTR1, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource InverseBoolToCollapsedConverter}}"
             IsEnabled="{Binding IsAmmolessTypeSupported, UpdateSourceTrigger=PropertyChanged}"
             IsActive="{Binding RandomizeAmmolessLevels, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
             Title="Randomize Ammoless Levels"
@@ -109,9 +127,35 @@
             CustomIntMaxValue="{Binding MaximumLevelCount}"
             CustomIntTitle="Number of levels"/>
 
+        <ctrl:ManagedSeedAdvancedControl
+            Grid.Row="3"
+            Grid.Column="0"
+            Visibility="{Binding IsTR1, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToCollapsedConverter}}"
+            IsEnabled="{Binding IsHealthTypeSupported, UpdateSourceTrigger=PropertyChanged}"
+            IsActive="{Binding RandomizeHealth, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+            Title="Randomize Lara's Health"
+            Text="Randomize Lara's starting health and medi-packs."
+            SeedMinValue="1"
+            SeedMaxValue="{Binding MaxSeedValue}"
+            SeedValue="{Binding HealthSeed, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}">
+            <ctrl:ManagedSeedAdvancedControl.Resources>
+                <cvt:BindingProxy x:Key="proxy" Data="{Binding}" />
+            </ctrl:ManagedSeedAdvancedControl.Resources>
+            <ctrl:ManagedSeedAdvancedControl.AdvancedWindowToOpen>
+                <windows:AdvancedWindow Title="Randomize Lara's Health (Advanced)"
+                                        MainDescription="Customize the randomization of Lara's health."
+                                        HasBoolItems="True"
+                                        HasHealthMode="True"
+                                        BoolItemsSource="{Binding Data.HealthBoolItemControls, Source={StaticResource proxy}}"
+                                        ControllerProxy="{Binding Data, Source={StaticResource proxy}}">
+                </windows:AdvancedWindow>
+            </ctrl:ManagedSeedAdvancedControl.AdvancedWindowToOpen>
+        </ctrl:ManagedSeedAdvancedControl>
+
         <ctrl:ManagedSeedIntControl
             Grid.Row="3"
             Grid.Column="0"
+            Visibility="{Binding IsTR1, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource InverseBoolToCollapsedConverter}}"
             IsEnabled="{Binding IsSunsetTypeSupported, UpdateSourceTrigger=PropertyChanged}"
             IsActive="{Binding RandomizeSunsets, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
             Title="Randomize Sunsets"
@@ -180,6 +224,7 @@
                                         MainDescription="Customize the secret randomization."
                                         BoolItemsSource="{Binding Data.SecretBoolItemControls, Source={StaticResource proxy}}"
                                         HasBoolItems="True"
+                                        HasSecretCountMode="{Binding Data.IsSecretCountTypeSupported, Source={StaticResource proxy}}"
                                         ControllerProxy="{Binding Data, Source={StaticResource proxy}}">
                 </windows:AdvancedWindow>
             </ctrl:ManagedSeedAdvancedControl.AdvancedWindowToOpen>
@@ -204,6 +249,7 @@
                                         BoolItemsSource="{Binding Data.ItemBoolItemControls, Source={StaticResource proxy}}"
                                         HasBoolItems="True"
                                         HasItemDifficulty="True"
+                                        HasItemSpriteRandomization="{Binding Data.IsItemSpriteTypeSupported, Source={StaticResource proxy}}"
                                         ControllerProxy="{Binding Data, Source={StaticResource proxy}}">
                 </windows:AdvancedWindow>
             </ctrl:ManagedSeedAdvancedControl.AdvancedWindowToOpen>
@@ -228,6 +274,8 @@
                                         BoolItemsSource="{Binding Data.EnemyBoolItemControls, Source={StaticResource proxy}}"
                                         HasBoolItems="True"
                                         HasDifficulty="True"
+                                        HasDragonSpawn="{Binding Data.IsDragonSpawnTypeSupported, Source={StaticResource proxy}}"
+                                        HasBirdMonsterBehaviour="{Binding Data.IsBirdMonsterBehaviourTypeSupported, Source={StaticResource proxy}}"
                                         ControllerProxy="{Binding Data, Source={StaticResource proxy}}">
                 </windows:AdvancedWindow>
             </ctrl:ManagedSeedAdvancedControl.AdvancedWindowToOpen>
@@ -250,7 +298,9 @@
                 <windows:AdvancedWindow Title="Randomize Textures (Advanced)"
                                         MainDescription="Customize the texture randomization."
                                         BoolItemsSource="{Binding Data.TextureBoolItemControls, Source={StaticResource proxy}}"
-                                        HasBoolItems="True">
+                                        HasBoolItems="True"
+                                        HasTextureOptions="True"
+                                        ControllerProxy="{Binding Data, Source={StaticResource proxy}}">
                 </windows:AdvancedWindow>
             </ctrl:ManagedSeedAdvancedControl.AdvancedWindowToOpen>
         </ctrl:ManagedSeedAdvancedControl>
@@ -269,6 +319,18 @@
 
         <ctrl:ManagedSeedControl
             Grid.Column="2"
+            Visibility="{Binding IsTR1, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToCollapsedConverter}}"
+            IsEnabled="{Binding IsSecretRewardTypeSupported, UpdateSourceTrigger=PropertyChanged}"
+            IsActive="{Binding RandomizeSecretRewards, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+            Title="Randomize Secret Rewards"
+            Text="Randomize the rewards given for finding secrets in each level."
+            SeedMinValue="1"
+            SeedMaxValue="{Binding MaxSeedValue}"
+            SeedValue="{Binding SecretRewardSeed, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
+
+        <ctrl:ManagedSeedControl
+            Grid.Column="2"
+            Visibility="{Binding IsTR1, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource InverseBoolToCollapsedConverter}}"
             IsEnabled="{Binding IsSecretRewardTypeSupported, UpdateSourceTrigger=PropertyChanged}"
             IsActive="{Binding RandomizeSecretRewards, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
             Title="Randomize Secret Rewards"
@@ -280,6 +342,32 @@
         <ctrl:ManagedSeedAdvancedControl
             Grid.Row="1"
             Grid.Column="2"
+            Visibility="{Binding IsTR1, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToCollapsedConverter}}"
+            IsEnabled="{Binding IsAudioTypeSupported, UpdateSourceTrigger=PropertyChanged}"
+            IsActive="{Binding RandomizeAudioTracks, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+            Title="Randomize Audio"
+            Text="Randomize the tracks for the title screen, level ambience and triggers, as well as general sound effects."
+            SeedMinValue="1"
+            SeedMaxValue="{Binding MaxSeedValue}"
+            SeedValue="{Binding AudioTracksSeed, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}">
+            <ctrl:ManagedSeedAdvancedControl.Resources>
+                <cvt:BindingProxy x:Key="proxy" Data="{Binding}" />
+            </ctrl:ManagedSeedAdvancedControl.Resources>
+            <ctrl:ManagedSeedAdvancedControl.AdvancedWindowToOpen>
+                <windows:AdvancedWindow Title="Randomize Audio (Advanced)"
+                                        MainDescription="Customize the audio randomization."
+                                        BoolItemsSource="{Binding Data.AudioBoolItemControls, Source={StaticResource proxy}}"
+                                        HasBoolItems="True"
+                                        HasAudioOptions="True"
+                                        ControllerProxy="{Binding Data, Source={StaticResource proxy}}">
+                </windows:AdvancedWindow>
+            </ctrl:ManagedSeedAdvancedControl.AdvancedWindowToOpen>
+        </ctrl:ManagedSeedAdvancedControl>
+
+        <ctrl:ManagedSeedAdvancedControl
+            Grid.Row="1"
+            Grid.Column="2"
+            Visibility="{Binding IsTR1, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource InverseBoolToCollapsedConverter}}"
             IsEnabled="{Binding IsAudioTypeSupported, UpdateSourceTrigger=PropertyChanged}"
             IsActive="{Binding RandomizeAudioTracks, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
             Title="Randomize Audio"
@@ -295,6 +383,7 @@
                                         MainDescription="Customize the audio randomization."
                                         BoolItemsSource="{Binding Data.AudioBoolItemControls, Source={StaticResource proxy}}"
                                         HasBoolItems="True"
+                                        HasAudioOptions="True"
                                         ControllerProxy="{Binding Data, Source={StaticResource proxy}}">
                 </windows:AdvancedWindow>
             </ctrl:ManagedSeedAdvancedControl.AdvancedWindowToOpen>
@@ -305,8 +394,8 @@
             Grid.Column="2"
             IsEnabled="{Binding IsOutfitTypeSupported, UpdateSourceTrigger=PropertyChanged}"
             IsActive="{Binding RandomizeOutfits, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-            Title="Randomize Lara's Outfits"
-            Text="Randomize Lara's outfit in each level."
+            Title="Randomize Lara's Appearance"
+            Text="Randomize Lara's look in each level."
             SeedMinValue="1"
             SeedMaxValue="{Binding MaxSeedValue}"
             SeedValue="{Binding OutfitSeed, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}">
@@ -314,11 +403,11 @@
                 <cvt:BindingProxy x:Key="proxy" Data="{Binding}" />
             </ctrl:ManagedSeedAdvancedControl.Resources>
             <ctrl:ManagedSeedAdvancedControl.AdvancedWindowToOpen>
-                <windows:AdvancedWindow Title="Randomize Outfits (Advanced)"
-                                        MainDescription="Customize the outfit randomization."
+                <windows:AdvancedWindow Title="Randomize Lara's Appearance (Advanced)"
+                                        MainDescription="Customize the randomization of Lara's look."
                                         BoolItemsSource="{Binding Data.OutfitBoolItemControls, Source={StaticResource proxy}}"
                                         HasBoolItems="True"
-                                        HasHaircuts="True"
+                                        HasHaircuts="{Binding Data.IsBraidTypeSupported, Source={StaticResource proxy}}"
                                         HasInvisibility="True"
                                         ControllerProxy="{Binding Data, Source={StaticResource proxy}}">
                 </windows:AdvancedWindow>
@@ -365,7 +454,7 @@
             <ctrl:ManagedSeedAdvancedControl.AdvancedWindowToOpen>
                 <windows:AdvancedWindow Title="Randomize Environment (Advanced)"
                                         MainDescription="Customize the environmental randomization."
-                                        HasBoolItems="True"
+                                        HasBoolItems="{Binding Data.IsTR2, Source={StaticResource proxy}}"
                                         HasMirroring="True"
                                         BoolItemsSource="{Binding Data.EnvironmentBoolItemControls, Source={StaticResource proxy}}"
                                         ControllerProxy="{Binding Data, Source={StaticResource proxy}}">
@@ -374,141 +463,211 @@
         </ctrl:ManagedSeedAdvancedControl>
 
         <Border
-            Grid.RowSpan="2"
+            Grid.RowSpan="5"
             Grid.Column="3"
-            BorderBrush="#0E7709"
-            BorderThickness="1"
-            Background="#D8FCD6"
-            CornerRadius="5"
-            Margin="5">
-            <Grid Margin="10,9,10,10">
+            Margin="0">
+            <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="50*"/>
+                    <RowDefinition Height="50*"/>
                 </Grid.RowDefinitions>
 
-                <Label
-                    Content="Global Options"
-                    Padding="0,0,0,5"
-                    FontWeight="Bold"/>
+                <Popup
+                    x:Name="_feedbackPopup"
+                    StaysOpen="False"
+                    Placement="Mouse">
+                    <Border 
+                        Padding="5,3"
+                        BorderThickness="1"
+                        Background="{StaticResource ThemeColour5}"
+                        BorderBrush="{StaticResource ThemeColour5}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Path
+                                Width="11"
+                                Height="11"
+                                Margin="0,0,5,0"
+                                SnapsToDevicePixels="False" 
+                                Stroke="#fff"
+                                StrokeThickness="2"
+                                Data="M 2,4 C 2,4 3,5 5,13 C 5,13 5,3 12,0" />
+                            <TextBlock
+                                x:Name="_popupTextBlock"
+                                Foreground="#fff"
+                                Grid.Column="1" />
+                        </Grid>
+                    </Border>
+                </Popup>
 
-                <TextBlock
-                    Grid.Row="1"
-                    Margin="0,0,0,5"
-                    Text="Randomize the seed for each selected element."
-                    TextWrapping="Wrap"/>
+                <Border
+                    BorderBrush="#0E7709"
+                    BorderThickness="1"
+                    Background="#D8FCD6"
+                    CornerRadius="5"
+                    Margin="5">
+                    <Grid Margin="10,9,10,10">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
 
-                <Button
+                        <Label
+                            Content="Global Options"
+                            Padding="0,0,0,5"
+                            FontWeight="Bold"/>
+
+                        <TextBlock
+                            Grid.Row="1"
+                            Margin="0,0,0,5"
+                            Text="Randomize the seed for each selected element."
+                            TextWrapping="Wrap"/>
+
+                        <Button
+                            Grid.Row="2"
+                            Margin="0,0,0,18"
+                            Content="Randomize Seeds" 
+                            Style="{StaticResource AltCallToAction}"
+                            Command="cmds:WindowCommands.RandomizeSeeds"/>
+
+                        <TextBlock
+                            Grid.Row="3"
+                            Margin="0,0,0,5"
+                            Text="Randomize the settings within each selected element."
+                            TextWrapping="Wrap"/>
+
+                        <Button
+                            Grid.Row="4"
+                            Margin="0,0,0,18"
+                            Content="Randomize Options" 
+                            Style="{StaticResource AltCallToAction}"
+                            Command="cmds:WindowCommands.RandomizeOptions"/>
+
+                        <TextBlock
+                            Grid.Row="5"
+                            Margin="0,0,0,5"
+                            Text="Set a global seed for each selected element."
+                            TextWrapping="Wrap"/>
+
+                        <Button
+                            Grid.Row="6"
+                            Margin="0,0,0,18"
+                            Content="Apply a Global Seed" 
+                            Style="{StaticResource AltCallToAction}"
+                            Command="cmds:WindowCommands.CreateGlobalSeed"/>
+
+                        <TextBlock
+                            Visibility="{Binding IsTR1Main, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToCollapsedConverter}}"
+                            Grid.Row="7"
+                            Margin="0,0,0,5"
+                            Text="Configure extra settings specific to Tomb1Main."
+                            TextWrapping="Wrap"/>
+
+                        <Button
+                            Visibility="{Binding IsTR1Main, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToCollapsedConverter}}"
+                            Grid.Row="8"
+                            Margin="0,0,0,18"
+                            Content="Tomb1Main Settings" 
+                            Style="{StaticResource AltCallToAction}"
+                            Command="cmds:WindowCommands.EditCommunitySettings"/>
+                    </Grid>
+                </Border>
+
+                <Border
                     Grid.Row="2"
-                    Margin="0,0,0,20"
-                    Content="Randomize Seeds" 
-                    Style="{StaticResource AltCallToAction}"
-                    Command="cmds:WindowCommands.RandomizeSeeds"/>
+                    BorderBrush="#0E7709"
+                    BorderThickness="1"
+                    Background="#D8FCD6"
+                    CornerRadius="5"
+                    Margin="5">
+                    <Grid Margin="10,9,10,10">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
 
-                <TextBlock
-                    Grid.Row="3"
-                    Margin="0,0,0,5"
-                    Text="Set a global seed for each selected element."
-                    TextWrapping="Wrap"/>
+                        <Label
+                            Content="Apply Randomization"
+                            Padding="0,0,0,5"
+                            FontWeight="Bold"/>
 
-                <Button
-                    Grid.Row="4"
-                    Margin="0,0,0,20"
-                    Content="Apply a Global Seed" 
-                    Style="{StaticResource AltCallToAction}"
-                    Command="cmds:WindowCommands.CreateGlobalSeed"/>
-            </Grid>
-        </Border>
+                        <TextBlock
+                            Grid.Row="1"
+                            Margin="0,0,0,5"
+                            Visibility="{Binding IsEnvironmentTypeSupported, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToCollapsedConverter}}"
+                            IsEnabled="{Binding RandomizeEnvironment, Converter={StaticResource InverseBooleanConverter}}"
+                            Text="Do not apply default environment changes such as return paths."
+                            TextWrapping="Wrap"
+                            Style="{StaticResource StatusAwareTextBlock}"/>
 
-        <Border
-            Grid.Row="2"
-            Grid.RowSpan="3"
-            Grid.Column="3"
-            BorderBrush="#0E7709"
-            BorderThickness="1"
-            Background="#D8FCD6"
-            CornerRadius="5"
-            Margin="5">
-            <Grid Margin="10,9,10,10">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
+                        <CheckBox
+                            Grid.Row="2"
+                            Margin="0,0,0,20"
+                            Visibility="{Binding IsEnvironmentTypeSupported, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToCollapsedConverter}}"
+                            IsEnabled="{Binding RandomizeEnvironment, Converter={StaticResource InverseBooleanConverter}}"
+                            IsChecked="{Binding PuristMode, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}">
+                            <Label 
+                                Padding="0"
+                                Content="Purist Mode"/>
+                        </CheckBox>
 
-                <Label
-                    Content="Apply Randomization"
-                    Padding="0,0,0,5"
-                    FontWeight="Bold"/>
+                        <TextBlock
+                            Grid.Row="3"
+                            Margin="0,0,0,5"
+                            Visibility="{Binding IsDisableDemosTypeSupported, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToCollapsedConverter}}"
+                            Text="Disable demos from showing in the title screen to prevent spoilers."
+                            TextWrapping="Wrap"/>
 
-                <TextBlock
-                    Grid.Row="1"
-                    Margin="0,0,0,5"
-                    Visibility="{Binding IsEnvironmentTypeSupported, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToCollapsedConverter}}"
-                    IsEnabled="{Binding RandomizeEnvironment, Converter={StaticResource InverseBooleanConverter}}"
-                    Text="Do not apply default environment changes such as return paths."
-                    TextWrapping="Wrap"
-                    Style="{StaticResource StatusAwareTextBlock}"/>
+                        <CheckBox
+                            Grid.Row="4"
+                            Margin="0,0,0,20"
+                            Content="Disable Demos"
+                            Visibility="{Binding IsDisableDemosTypeSupported, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToCollapsedConverter}}"
+                            IsChecked="{Binding DisableDemos, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
 
-                <CheckBox
-                    Grid.Row="2"
-                    Margin="0,0,0,20"
-                    Visibility="{Binding IsEnvironmentTypeSupported, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToCollapsedConverter}}"
-                    IsEnabled="{Binding RandomizeEnvironment, Converter={StaticResource InverseBooleanConverter}}"
-                    IsChecked="{Binding PuristMode, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}">
-                    <Label 
-                        Padding="0"
-                        Content="Purist Mode"/>
-                </CheckBox>
+                        <TextBlock
+                            Grid.Row="5"
+                            Margin="0,0,0,5"
+                            Text="Launch the game automatically following successful randomization."
+                            TextWrapping="Wrap"/>
 
-                <TextBlock
-                    Grid.Row="3"
-                    Margin="0,0,0,5"
-                    Visibility="{Binding IsDisableDemosTypeSupported, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToCollapsedConverter}}"
-                    Text="Disable demos from showing in the title screen to prevent spoilers."
-                    TextWrapping="Wrap"/>
+                        <CheckBox
+                            Grid.Row="6"
+                            Content="Auto-launch Game"
+                            IsChecked="{Binding AutoLaunchGame, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
 
-                <CheckBox
-                    Grid.Row="4"
-                    Margin="0,0,0,20"
-                    Content="Disable Demos"
-                    Visibility="{Binding IsDisableDemosTypeSupported, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToCollapsedConverter}}"
-                    IsChecked="{Binding DisableDemos, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
+                        <TextBlock
+                            Grid.Row="7"
+                            Margin="0,0,0,5"
+                            Text="Hit Randomize to apply your chosen settings and start playing."
+                            TextWrapping="Wrap"/>
 
-                <TextBlock
-                    Grid.Row="5"
-                    Margin="0,0,0,5"
-                    Text="Launch the game automatically following successful randomization."
-                    TextWrapping="Wrap"/>
-
-                <CheckBox
-                    Grid.Row="6"
-                    Content="Auto-launch Game"
-                    IsChecked="{Binding AutoLaunchGame, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
-
-                <TextBlock
-                    Grid.Row="7"
-                    Margin="0,0,0,5"
-                    Text="Hit Randomize to apply your chosen settings and start playing."
-                    TextWrapping="Wrap"/>
-
-                <Button
-                    Grid.Row="8"
-                    Style="{StaticResource CallToAction}"
-                    HorizontalAlignment="Stretch"
-                    VerticalAlignment="Bottom"
-                    FontSize="24"                        
-                    Content="Randomize!"
-                    Command="cmds:WindowCommands.Randomize"/>
+                        <Button
+                            Grid.Row="8"
+                            Style="{StaticResource CallToAction}"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Bottom"
+                            FontSize="24"                        
+                            Content="Randomize!"
+                            Command="cmds:WindowCommands.Randomize"/>
+                    </Grid>
+                </Border>
             </Grid>
         </Border>
     </Grid>

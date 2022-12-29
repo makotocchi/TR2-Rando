@@ -63,8 +63,26 @@
             line-height: 132%;
         }
 
-        .indprop {
+        .indprops {
+            display:table;
             margin-left:10px;
+        }
+
+        .indprops div {
+            display:table-row;
+        }
+
+        .indprops span {
+            display:table-cell;
+            padding:1px 4px;
+        }
+
+        .indprops span:first-child {
+            text-align:right;
+        }
+
+        .indprops span:nth-child(3) {
+            text-align: center;
         }
 
         #tiles {
@@ -136,6 +154,24 @@
         #skybox span {
             display:table-cell;
             padding-right:3px;
+        }
+
+        #palette {
+            position: absolute;
+            left: 10px;
+            bottom: 10px;
+            font-size: 13px;
+            width: calc(100% - 20px);
+        }
+
+        #palette:empty {
+            display: none;
+        }
+
+        #palette:before {
+            display: block;
+            content: 'Palette';
+            font-weight: bold;
         }
     </style>
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
@@ -234,8 +270,17 @@
                     }
                     markup += "</div>";
 
-                    for (let i = 0; i < textures.length; i++) {
-                        markup += `<div class="indprop">${textures[i]}</div>`;
+                    if (textures.length > 0) {
+                        markup += '<div class="indprops">';
+                        for (let i = 0; i < textures.length; i++) {
+                            let props = textures[i].split(":");
+                            markup += '<div>';
+                            for (let j = 0; j < props.length; j++) {
+                                markup += `<span>${props[j]}</span>`;
+                            }
+                            markup += '</div>';
+                        }
+                        markup += '</div>';
                     }
 
                     let rectArr = JSON.parse(t.attr("data-rect"));
@@ -263,9 +308,11 @@
                             itext = i.attr("data-sprites").split(";");
                         }
 
-                        const k = parseInt(itext[0].split(":")[0]);
-                        if (indexArr.indexOf(k) == -1) {
-                            indexArr.push(k);
+                        for (let i = 0; i < itext.length; i++) {
+                            const k = parseInt(itext[i].split(":")[0]);
+                            if (indexArr.indexOf(k) == -1) {
+                                indexArr.push(k);
+                            }
                         }
                     });
 
@@ -288,6 +335,7 @@
     </div>
     <div id="details">&nbsp;</div>
     <div id="skybox">{SkyBox}</div>
+    <div id="palette">{Palette}</div>
 </div>
 <div id="tiles" class="singlesel">{Tiles}</div>
 </body>

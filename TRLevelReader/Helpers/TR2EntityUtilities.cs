@@ -113,6 +113,20 @@ namespace TRLevelReader.Helpers
             return new List<TR2Entities> { entity };
         }
 
+        public static List<TR2Entities> RemoveAliases(IEnumerable<TR2Entities> entities)
+        {
+            List<TR2Entities> ents = new List<TR2Entities>();
+            foreach (TR2Entities ent in entities)
+            {
+                TR2Entities normalisedEnt = TranslateEntityAlias(ent);
+                if (!ents.Contains(normalisedEnt))
+                {
+                    ents.Add(normalisedEnt);
+                }
+            }
+            return ents;
+        }
+
         public static List<TR2Entities> GetLaraTypes()
         {
             return new List<TR2Entities>
@@ -171,7 +185,7 @@ namespace TRLevelReader.Helpers
             };
         }
 
-        public static List<TR2Entities> GetCrossLevelDroppableEnemies(bool monksAreKillable)
+        public static List<TR2Entities> GetCrossLevelDroppableEnemies(bool monksAreKillable, bool unconditionalChickens)
         {
             List<TR2Entities> entities = new List<TR2Entities>
             {
@@ -210,6 +224,11 @@ namespace TRLevelReader.Helpers
             {
                 entities.Add(TR2Entities.MonkWithKnifeStick);
                 entities.Add(TR2Entities.MonkWithLongStick);
+            }
+
+            if (unconditionalChickens)
+            {
+                entities.Add(TR2Entities.BirdMonster);
             }
 
             return entities;
@@ -465,6 +484,11 @@ namespace TRLevelReader.Helpers
                     entity == TR2Entities.Flares_S_P);
         }
 
+        /// <summary>
+        /// returns true if the parameter provided is of one of the 3 secrets type 
+        /// </summary>
+        /// <param name="entity"><see cref="TR2Entities"/></param>
+        /// <returns>entity == TR2Entities.StoneSecret_S_P || entity == TR2Entities.JadeSecret_S_P || entity == TR2Entities.GoldSecret_S_P;</returns>
         public static bool IsSecretType(TR2Entities entity)
         {
             return entity == TR2Entities.StoneSecret_S_P || entity == TR2Entities.JadeSecret_S_P || entity == TR2Entities.GoldSecret_S_P;
@@ -497,6 +521,16 @@ namespace TRLevelReader.Helpers
             };
         }
 
+        public static List<TR2Entities> GetListOfSecretTypes()
+        {
+            return new List<TR2Entities>
+            {
+                TR2Entities.StoneSecret_S_P,
+                TR2Entities.JadeSecret_S_P,
+                TR2Entities.GoldSecret_S_P
+            };
+        }
+
         public static bool IsKeyItemType(TR2Entities entity)
         {
             return (entity == TR2Entities.Key1_S_P ||
@@ -509,6 +543,17 @@ namespace TRLevelReader.Helpers
                     entity == TR2Entities.Puzzle4_S_P ||
                     entity == TR2Entities.Quest1_S_P ||
                     entity == TR2Entities.Quest2_S_P);
+        }
+
+        public static bool IsAnyPickupType(TR2Entities entity)
+        {
+            return entity == TR2Entities.Pistols_S_P ||
+                entity == TR2Entities.PistolAmmo_S_P ||
+                IsAmmoType(entity) ||
+                IsGunType(entity) ||
+                IsKeyItemType(entity) ||
+                IsUtilityType(entity) ||
+                IsSecretType(entity);
         }
 
         public static bool IsWaterCreature(TR2Entities entity)
@@ -567,9 +612,9 @@ namespace TRLevelReader.Helpers
             return waterEntities;
         }
 
-        public static bool CanDropPickups(TR2Entities entity, bool monksAreKillable)
+        public static bool CanDropPickups(TR2Entities entity, bool monksAreKillable, bool unconditionalChickens)
         {
-            return GetCrossLevelDroppableEnemies(monksAreKillable).Contains(entity);
+            return GetCrossLevelDroppableEnemies(monksAreKillable, unconditionalChickens).Contains(entity);
             /*return (entity == TR2Entities.Doberman ||
                     entity == TR2Entities.MaskedGoon1 ||
                     entity == TR2Entities.MaskedGoon2 ||
@@ -593,12 +638,12 @@ namespace TRLevelReader.Helpers
             return entity == TR2Entities.MonkWithKnifeStick || entity == TR2Entities.MonkWithLongStick;
         }
 
-        public static List<TR2Entities> FilterDroppableEnemies(List<TR2Entities> entities, bool monksAreKillable)
+        public static List<TR2Entities> FilterDroppableEnemies(List<TR2Entities> entities, bool monksAreKillable, bool unconditionalChickens)
         {
             List<TR2Entities> droppableEntities = new List<TR2Entities>();
             foreach (TR2Entities entity in entities)
             {
-                if (CanDropPickups(entity, monksAreKillable))
+                if (CanDropPickups(entity, monksAreKillable, unconditionalChickens))
                 {
                     droppableEntities.Add(entity);
                 }
@@ -698,7 +743,7 @@ namespace TRLevelReader.Helpers
                 },
 
                 { "all",
-                    new List<TR2Entities>{ TR2Entities.Doberman, TR2Entities.MaskedGoon1, TR2Entities.ShotgunGoon, TR2Entities.MaskedGoon2, TR2Entities.MaskedGoon3, TR2Entities.Rat, 
+                    new List<TR2Entities>{ TR2Entities.Doberman, TR2Entities.MaskedGoon1, TR2Entities.ShotgunGoon, TR2Entities.MaskedGoon2, TR2Entities.MaskedGoon3, TR2Entities.Rat,
                     TR2Entities.StickWieldingGoon1, TR2Entities.Gunman2, TR2Entities.Gunman1, TR2Entities.FlamethrowerGoon, TR2Entities.StickWieldingGoon2,
                     TR2Entities.Mercenary2, TR2Entities.Mercenary3, TR2Entities.MonkWithKnifeStick, TR2Entities.MonkWithLongStick, TR2Entities.Mercenary1, TR2Entities.Knifethrower
                     }

@@ -11,15 +11,32 @@ namespace TRLevelReader.Helpers
             [TR3Entities.Lara] = new Dictionary<TR3Entities, List<string>>
             {
                 [TR3Entities.LaraIndia]
-                    = new List<string> { TR3LevelNames.JUNGLE, TR3LevelNames.RUINS, TR3LevelNames.GANGES, TR3LevelNames.CAVES },
+                    = TR3LevelNames.IndiaLevelsWithCutscenes,
                 [TR3Entities.LaraCoastal]
-                    = new List<string> { TR3LevelNames.COASTAL, TR3LevelNames.CRASH, TR3LevelNames.MADUBU, TR3LevelNames.PUNA },
+                    = TR3LevelNames.SouthPacificLevelsWithCutscenes,
                 [TR3Entities.LaraLondon]
-                    = new List<string> { TR3LevelNames.THAMES, TR3LevelNames.ALDWYCH, TR3LevelNames.LUDS, TR3LevelNames.CITY, TR3LevelNames.HALLOWS },
+                    = TR3LevelNames.LondonLevelsWithCutscenes,
                 [TR3Entities.LaraNevada]
-                    = new List<string> { TR3LevelNames.NEVADA, TR3LevelNames.HSC, TR3LevelNames.AREA51 },
+                    = TR3LevelNames.NevadaLevelsWithCutscenes,
                 [TR3Entities.LaraAntarc]
-                    = new List<string> { TR3LevelNames.ANTARC, TR3LevelNames.RXTECH, TR3LevelNames.TINNOS, TR3LevelNames.WILLIE }
+                    = TR3LevelNames.AntarcticaLevelsWithCutscenes,
+                [TR3Entities.LaraHome]
+                    = new List<string> { TR3LevelNames.ASSAULT }
+            },
+            [TR3Entities.LaraSkin_H] = new Dictionary<TR3Entities, List<string>>
+            {
+                [TR3Entities.LaraSkin_H_India]
+                    = TR3LevelNames.IndiaLevelsWithCutscenes,
+                [TR3Entities.LaraSkin_H_Coastal]
+                    = TR3LevelNames.SouthPacificLevelsWithCutscenes,
+                [TR3Entities.LaraSkin_H_London]
+                    = TR3LevelNames.LondonLevelsWithCutscenes,
+                [TR3Entities.LaraSkin_H_Nevada]
+                    = TR3LevelNames.NevadaLevelsWithCutscenes,
+                [TR3Entities.LaraSkin_H_Antarc]
+                    = TR3LevelNames.AntarcticaLevelsWithCutscenes,
+                [TR3Entities.LaraSkin_H_Home]
+                    = new List<string> { TR3LevelNames.ASSAULT }
             },
             [TR3Entities.Cobra] = new Dictionary<TR3Entities, List<string>>
             {
@@ -76,6 +93,20 @@ namespace TRLevelReader.Helpers
                 }
             }
             return entity;
+        }
+
+        public static List<TR3Entities> RemoveAliases(IEnumerable<TR3Entities> entities)
+        {
+            List<TR3Entities> ents = new List<TR3Entities>();
+            foreach (TR3Entities ent in entities)
+            {
+                TR3Entities normalisedEnt = TranslateEntityAlias(ent);
+                if (!ents.Contains(normalisedEnt))
+                {
+                    ents.Add(normalisedEnt);
+                }
+            }
+            return ents;
         }
 
         public static List<TR3Entities> GetLaraTypes()
@@ -152,6 +183,14 @@ namespace TRLevelReader.Helpers
                 [TR3Entities.Element115_P] = TR3Entities.Element115_M_H,
                 [TR3Entities.Quest1_P] = TR3Entities.Quest1_M_H, // Serpent Stone
                 [TR3Entities.Quest2_P] = TR3Entities.Quest2_M_H  // Hand of Rathmore
+            };
+        }
+
+        public static List<TR3Entities> GetArtefactMenuModels()
+        {
+            return new List<TR3Entities>
+            {
+                TR3Entities.Infada_M_H, TR3Entities.OraDagger_M_H, TR3Entities.EyeOfIsis_M_H, TR3Entities.Element115_M_H
             };
         }
 
@@ -241,6 +280,21 @@ namespace TRLevelReader.Helpers
                 || (entity == TR3Entities.GrenadeLauncher_P);
         }
 
+        public static List<TR3Entities> GetWeaponPickups()
+        {
+            return new List<TR3Entities>
+            {
+                TR3Entities.Pistols_P,
+                TR3Entities.Shotgun_P,
+                TR3Entities.Deagle_P,
+                TR3Entities.Uzis_P,
+                TR3Entities.Harpoon_P,
+                TR3Entities.MP5_P,
+                TR3Entities.RocketLauncher_P,
+                TR3Entities.GrenadeLauncher_P
+            };
+        }
+
         public static bool IsAmmoPickup(TR3Entities entity)
         {
             return (entity == TR3Entities.PistolAmmo_P)
@@ -251,6 +305,29 @@ namespace TRLevelReader.Helpers
                 || (entity == TR3Entities.MP5Ammo_P)
                 || (entity == TR3Entities.Rockets_P)
                 || (entity == TR3Entities.Grenades_P);
+        }
+
+        public static TR3Entities GetWeaponAmmo(TR3Entities weapon)
+        {
+            switch (weapon)
+            {
+                case TR3Entities.Shotgun_P:
+                    return TR3Entities.ShotgunAmmo_P;
+                case TR3Entities.Deagle_P:
+                    return TR3Entities.DeagleAmmo_P;
+                case TR3Entities.Uzis_P:
+                    return TR3Entities.UziAmmo_P;
+                case TR3Entities.Harpoon_P:
+                    return TR3Entities.Harpoons_P;
+                case TR3Entities.MP5_P:
+                    return TR3Entities.MP5Ammo_P;
+                case TR3Entities.GrenadeLauncher_P:
+                    return TR3Entities.Grenades_P;
+                case TR3Entities.RocketLauncher_P:
+                    return TR3Entities.Rockets_P;
+                default:
+                    return TR3Entities.PistolAmmo_P;
+            }
         }
 
         public static bool IsCrystalPickup(TR3Entities entity)
@@ -305,6 +382,7 @@ namespace TRLevelReader.Helpers
                 TR3Entities.Mercenary,
                 TR3Entities.Monkey,
                 TR3Entities.MPWithGun,
+                TR3Entities.MPWithMP5,
                 TR3Entities.MPWithStick,
                 TR3Entities.Prisoner,
                 //TR3Entities.Puna, // Activates Lizard at hardcoded coordinates, which are OOB in all other levels
@@ -328,6 +406,11 @@ namespace TRLevelReader.Helpers
                 TR3Entities.Winston,
                 TR3Entities.WinstonInCamoSuit
             };
+        }
+
+        public static bool IsEnemyType(TR3Entities entity)
+        {
+            return GetFullListOfEnemies().Contains(entity);
         }
 
         public static List<TR3Entities> GetFullListOfEnemies()
@@ -417,6 +500,7 @@ namespace TRLevelReader.Helpers
                 TR3Entities.LondonMerc,
                 TR3Entities.Monkey,
                 TR3Entities.MPWithGun,
+                TR3Entities.MPWithMP5,
                 TR3Entities.MPWithStick,
                 TR3Entities.Punk,
                 TR3Entities.Raptor,
@@ -443,6 +527,134 @@ namespace TRLevelReader.Helpers
             }
 
             return enemies;
+        }
+
+        public static List<TR3Entities> GetUnrenderedEntities()
+        {
+            return new List<TR3Entities>
+            {
+                TR3Entities.AIAmbush_N,
+                TR3Entities.AICheck_N,
+                TR3Entities.AIFollow_N,
+                TR3Entities.AIGuard_N,
+                TR3Entities.AIModify_N,
+                TR3Entities.AIPath_N,
+                TR3Entities.AIPatrol1_N,
+                TR3Entities.AIPatrol2_N,
+                TR3Entities.LookAtItem_H,
+                TR3Entities.KillAllTriggers_N,
+                TR3Entities.RaptorRespawnPoint_N,
+                TR3Entities.TinnosWaspRespawnPoint_N,
+                TR3Entities.EarthQuake_N,
+                TR3Entities.BatSwarm_N
+            };
+        }
+
+        public static bool IsUnrenderedEntity(TR3Entities entity)
+        {
+            return GetUnrenderedEntities().Contains(entity);
+        }
+
+        public static List<TR3Entities> GetSwitchTypes()
+        {
+            return new List<TR3Entities>
+            {
+                TR3Entities.SmallWallSwitch,
+                TR3Entities.PushButtonSwitch,
+                TR3Entities.WallSwitch,
+                TR3Entities.UnderwaterSwitch
+            };
+        }
+
+        public static bool IsSwitchType(TR3Entities entity)
+        {
+            return GetSwitchTypes().Contains(entity);
+        }
+
+        public static List<TR3Entities> GetKeyholeTypes()
+        {
+            return new List<TR3Entities>
+            {
+                TR3Entities.Keyhole1,
+                TR3Entities.Keyhole2,
+                TR3Entities.Keyhole3,
+                TR3Entities.Keyhole4
+            };
+        }
+
+        public static bool IsKeyholeType(TR3Entities entity)
+        {
+            return GetKeyholeTypes().Contains(entity);
+        }
+
+        public static List<TR3Entities> GetSlotTypes()
+        {
+            return new List<TR3Entities>
+            {
+                TR3Entities.Slot1Empty,
+                TR3Entities.Slot2Empty,
+                TR3Entities.Slot3Empty,
+                TR3Entities.Slot4Empty,
+                TR3Entities.Slot1Full,
+                TR3Entities.Slot2Full,
+                TR3Entities.Slot3Full,
+                TR3Entities.Slot4Full
+            };
+        }
+
+        public static bool IsSlotType(TR3Entities entity)
+        {
+            return GetSlotTypes().Contains(entity);
+        }
+
+        public static List<TR3Entities> GetLightTypes()
+        {
+            return new List<TR3Entities>
+            {
+                TR3Entities.Light_N,
+                TR3Entities.Light2_N,
+                TR3Entities.Light3_N,
+                TR3Entities.Light4_N,
+                TR3Entities.AlarmLight,
+                TR3Entities.BlueLight_N,
+                TR3Entities.GreenLight_N,
+                TR3Entities.RedLight_N,
+                TR3Entities.PulsatingLight_N
+            };
+        }
+
+        public static bool IsLightType(TR3Entities entity)
+        {
+            return GetLightTypes().Contains(entity);
+        }
+
+        public static bool CanSharePickupSpace(TR3Entities entity)
+        {
+            // Can we place a standard pickup on the same tile as this entity?
+            return IsStandardPickupType(entity)
+                || IsCrystalPickup(entity)
+                || IsUnrenderedEntity(entity)
+                || CanDropPickups(entity, true)
+                || IsSwitchType(entity)
+                || IsKeyholeType(entity)
+                || IsSlotType(entity)
+                || IsLightType(entity)
+                || entity == TR3Entities.Lara;
+        }
+
+        public static List<TR3Entities> DoorTypes()
+        {
+            return new List<TR3Entities>
+            {
+                TR3Entities.Door1, TR3Entities.Door2, TR3Entities.Door3,
+                TR3Entities.Door4, TR3Entities.Door5, TR3Entities.Door6,
+                TR3Entities.Door7, TR3Entities.Door8
+            };
+        }
+
+        public static bool IsDoorType(TR3Entities entity)
+        {
+            return DoorTypes().Contains(entity);
         }
     }
 }

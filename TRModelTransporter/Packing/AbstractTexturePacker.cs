@@ -77,6 +77,7 @@ namespace TRModelTransporter.Packing
                 if (result.OrphanCount == 0 && commitToLevel)
                 {
                     Commit();
+                    PostCommit();
                 }
 
                 return result;
@@ -110,6 +111,21 @@ namespace TRModelTransporter.Packing
             return segmentMap;
         }
 
+        public Dictionary<TexturedTile, List<TexturedTileSegment>> GetObjectTextureSegments(IEnumerable<int> indices)
+        {
+            Dictionary<TexturedTile, List<TexturedTileSegment>> segmentMap = new Dictionary<TexturedTile, List<TexturedTileSegment>>();
+            foreach (TexturedTile tile in _tiles)
+            {
+                List<TexturedTileSegment> segments = tile.GetObjectTextureIndexSegments(indices);
+                if (segments.Count > 0)
+                {
+                    segmentMap[tile] = segments;
+                }
+            }
+
+            return segmentMap;
+        }
+
         protected abstract TRMesh[] GetModelMeshes(E modelEntity);
 
         public Dictionary<TexturedTile, List<TexturedTileSegment>> GetSpriteSegments(E entity)
@@ -131,6 +147,21 @@ namespace TRModelTransporter.Packing
                     {
                         segmentMap[tile] = segments;
                     }
+                }
+            }
+
+            return segmentMap;
+        }
+
+        public Dictionary<TexturedTile, List<TexturedTileSegment>> GetSpriteTextureSegments(IEnumerable<int> indices)
+        {
+            Dictionary<TexturedTile, List<TexturedTileSegment>> segmentMap = new Dictionary<TexturedTile, List<TexturedTileSegment>>();
+            foreach (TexturedTile tile in _tiles)
+            {
+                List<TexturedTileSegment> segments = tile.GetSpriteTextureIndexSegments(indices);
+                if (segments.Count > 0)
+                {
+                    segmentMap[tile] = segments;
                 }
             }
 
@@ -184,8 +215,37 @@ namespace TRModelTransporter.Packing
             }
         }
 
+        public void RemoveObjectTextureSegments(IEnumerable<int> indices)
+        {
+            foreach (TexturedTile tile in _tiles)
+            {
+                List<TexturedTileSegment> segments = tile.GetObjectTextureIndexSegments(indices);
+                for (int i = 0; i < segments.Count; i++)
+                {
+                    tile.Remove(segments[i]);
+                }
+            }
+        }
+
+        public void RemoveSpriteTextureSegments(IEnumerable<int> indices)
+        {
+            foreach (TexturedTile tile in _tiles)
+            {
+                List<TexturedTileSegment> segments = tile.GetSpriteTextureIndexSegments(indices);
+                for (int i = 0; i < segments.Count; i++)
+                {
+                    tile.Remove(segments[i]);
+                }
+            }
+        }
+
         public void RemoveModelSegmentsChecked(IEnumerable<E> modelEntitiesToRemove)
         {
+            if (modelEntitiesToRemove.Count() == 0)
+            {
+                return;
+            }
+
             // Perform an exhaustive check against every other model in the level to find shared textures.
 
             Dictionary<E, Dictionary<TexturedTile, List<TexturedTileSegment>>> candidateSegments = new Dictionary<E, Dictionary<TexturedTile, List<TexturedTileSegment>>>();
@@ -293,6 +353,8 @@ namespace TRModelTransporter.Packing
                 SetTile(i, tile.BitmapGraphics.Bitmap);
             }
         }
+
+        protected virtual void PostCommit() { }
 
         public void Dispose()
         {

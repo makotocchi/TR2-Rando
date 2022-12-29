@@ -29,6 +29,17 @@ namespace TRRandomizerCore.Utilities
             return 0;
         }
 
+        // Similar to above, but allows for a collection to be resized if a specific
+        // enemy model is chosen.
+        public static int GetTargetEnemyAdjustmentCount(string lvlName, TR2Entities enemy)
+        {
+            if (_targetEnemyAdjustmentCount.ContainsKey(enemy) && _targetEnemyAdjustmentCount[enemy].ContainsKey(lvlName))
+            {
+                return _targetEnemyAdjustmentCount[enemy][lvlName];
+            }
+            return 0;
+        }
+
         public static bool IsWaterEnemyRequired(TR2CombinedLevel level)
         {
             foreach (TR2Entity entityInstance in level.Data.Entities)
@@ -48,7 +59,8 @@ namespace TRRandomizerCore.Utilities
 
         public static bool IsDroppableEnemyRequired(TR2CombinedLevel level)
         {
-            foreach (TR2Entity entityInstance in level.Data.Entities)
+            TR2Entity[] enemies = Array.FindAll(level.Data.Entities, e => TR2EntityUtilities.IsEnemyType((TR2Entities)e.TypeID));
+            foreach (TR2Entity entityInstance in enemies)
             {
                 List<TR2Entity> sharedItems = new List<TR2Entity>(Array.FindAll
                 (
@@ -166,6 +178,32 @@ namespace TRRandomizerCore.Utilities
             return -1;
         }
 
+        public static int GetRestrictedEnemyTotalTypeCount(RandoDifficulty difficulty)
+        {
+            if (difficulty == RandoDifficulty.Default)
+            {
+                return _restrictedEnemyLevelCountsDefault.Count;
+            }
+
+            return _restrictedEnemyLevelCountsTechnical.Count;
+        }
+
+        public static List<List<TR2Entities>> GetPermittedCombinations(string lvl, TR2Entities entity, RandoDifficulty difficulty)
+        {
+            if (_specialEnemyCombinations.ContainsKey(lvl) && _specialEnemyCombinations[lvl].ContainsKey(entity))
+            {
+                if (_specialEnemyCombinations[lvl][entity].ContainsKey(difficulty))
+                {
+                    return _specialEnemyCombinations[lvl][entity][difficulty];
+                }
+                else if (_specialEnemyCombinations[lvl][entity].ContainsKey(RandoDifficulty.DefaultOrNoRestrictions))
+                {
+                    return _specialEnemyCombinations[lvl][entity][RandoDifficulty.DefaultOrNoRestrictions];
+                }
+            }
+            return null;
+        }
+
         public static Dictionary<TR2Entities, List<string>> PrepareEnemyGameTracker(bool docileBirdMonster, RandoDifficulty difficulty)
         {
             Dictionary<TR2Entities, List<string>> tracker = new Dictionary<TR2Entities, List<string>>();
@@ -250,10 +288,6 @@ namespace TRRandomizerCore.Utilities
         // These enemies are unsupported due to technical reasons, NOT difficulty reasons.
         private static readonly Dictionary<string, List<TR2Entities>> _unsupportedEnemiesTechnical = new Dictionary<string, List<TR2Entities>>
         {
-            [TR2LevelNames.VENICE] =
-                new List<TR2Entities> { TR2Entities.MarcoBartoli },
-            [TR2LevelNames.BARTOLI] =
-                new List<TR2Entities> { TR2Entities.MarcoBartoli },
             // #192 The Barkhang/Opera House freeze appears to be caused by dead floating water creatures, so they're all banished
             [TR2LevelNames.OPERA] =
                 new List<TR2Entities>
@@ -261,35 +295,22 @@ namespace TRRandomizerCore.Utilities
                     TR2Entities.Barracuda, TR2Entities.BlackMorayEel, TR2Entities.ScubaDiver,
                     TR2Entities.Shark, TR2Entities.YellowMorayEel
                 },
-            [TR2LevelNames.RIG] =
-                new List<TR2Entities> { TR2Entities.MarcoBartoli },
-            [TR2LevelNames.DA] =
-                new List<TR2Entities> { TR2Entities.MarcoBartoli },
-            [TR2LevelNames.FATHOMS] =
-                new List<TR2Entities> { TR2Entities.MarcoBartoli },
-            [TR2LevelNames.LQ] =
-                new List<TR2Entities> { TR2Entities.MarcoBartoli },
-            // #192 The Barkhang/Opera House freeze appears to be caused by dead floating water creatures, so they're all banished
             [TR2LevelNames.MONASTERY] =
                 new List<TR2Entities>
                 {
                     TR2Entities.Barracuda, TR2Entities.BlackMorayEel, TR2Entities.ScubaDiver,
                     TR2Entities.Shark, TR2Entities.YellowMorayEel
                 },
-            [TR2LevelNames.XIAN] =
-                new List<TR2Entities> { TR2Entities.MarcoBartoli },
-            [TR2LevelNames.FLOATER] =
-                new List<TR2Entities> { TR2Entities.MarcoBartoli },
             [TR2LevelNames.HOME] =
                 // #148 Although we say here that the Doberman, MaskedGoons and StickGoons
                 // aren't supported, this is only for cross-level purposes because we
                 // are making placeholder entities to prevent breaking the kill counter.
                 new List<TR2Entities>
                 {
-                    TR2Entities.BlackMorayEel, TR2Entities.Doberman, TR2Entities.Eagle, TR2Entities.MaskedGoon1,
-                    TR2Entities.MaskedGoon2, TR2Entities.MaskedGoon3, TR2Entities.MarcoBartoli, TR2Entities.MercSnowmobDriver,
-                    TR2Entities.MonkWithKnifeStick, TR2Entities.MonkWithLongStick, TR2Entities.Shark, TR2Entities.StickWieldingGoon1,
-                    TR2Entities.StickWieldingGoon2, TR2Entities.TRex, TR2Entities.Winston, TR2Entities.YellowMorayEel
+                    TR2Entities.BlackMorayEel, TR2Entities.Doberman, TR2Entities.MaskedGoon1,
+                    TR2Entities.MaskedGoon2, TR2Entities.MaskedGoon3, TR2Entities.MercSnowmobDriver,
+                    TR2Entities.MonkWithKnifeStick, TR2Entities.MonkWithLongStick, TR2Entities.StickWieldingGoon1,
+                    TR2Entities.StickWieldingGoon2, TR2Entities.Winston, TR2Entities.YellowMorayEel, TR2Entities.ShotgunGoon
                 }
         };
 
@@ -316,6 +337,10 @@ namespace TRRandomizerCore.Utilities
         private static readonly Dictionary<string, Dictionary<TR2Entities, List<int>>> _restrictedEnemyZonesDefault;
         private static readonly Dictionary<string, Dictionary<TR2Entities, List<int>>> _restrictedEnemyZonesTechnical;
 
+        // This allows us to define specific combinations of enemies if the leader is chosen for the rando pool. For
+        // example, the dragon in HSH will only work with 20 possible combinations.
+        private static readonly Dictionary<string, Dictionary<TR2Entities, Dictionary<RandoDifficulty, List<List<TR2Entities>>>>> _specialEnemyCombinations;
+
         // We also limit the count for some - more than 1 dragon tends to cause crashes if they spawn close together.
         // Winston is an easter egg so maybe keep it low.
         private static readonly Dictionary<TR2Entities, int> _restrictedEnemyLevelCountsTechnical = new Dictionary<TR2Entities, int>
@@ -338,6 +363,19 @@ namespace TRRandomizerCore.Utilities
             [TR2Entities.BirdMonster] = 3,
         };
 
+        // Predefined absolute limits for skidoo drivers
+        private static readonly Dictionary<string, int> _skidooLimits = new Dictionary<string, int>
+        {
+            [TR2LevelNames.OPERA] = 18,
+            [TR2LevelNames.MONASTERY] = 22,
+            [TR2LevelNames.XIAN] = 10
+        };
+
+        public static int GetSkidooDriverLimit(string lvl)
+        {
+            return _skidooLimits.ContainsKey(lvl) ? _skidooLimits[lvl] : -1;
+        }
+
         static TR2EnemyUtilities()
         {
             _restrictedEnemyZonesDefault = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<TR2Entities, List<int>>>>
@@ -347,6 +385,10 @@ namespace TRRandomizerCore.Utilities
             _restrictedEnemyZonesTechnical = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<TR2Entities, List<int>>>>
             (
                 File.ReadAllText(@"Resources\TR2\Restrictions\enemy_restrictions_technical.json")
+            );
+            _specialEnemyCombinations = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<TR2Entities, Dictionary<RandoDifficulty, List<List<TR2Entities>>>>>>
+            (
+                File.ReadAllText(@"Resources\TR2\Restrictions\enemy_restrictions_special.json")
             );
         }
 
@@ -360,14 +402,15 @@ namespace TRRandomizerCore.Utilities
             [EnemyDifficulty.Easy] = new List<TR2Entities>
             {
                 TR2Entities.Crow, TR2Entities.Eagle, TR2Entities.ScubaDiver,
-                TR2Entities.TRex, TR2Entities.YellowMorayEel
+                TR2Entities.YellowMorayEel
             },
             [EnemyDifficulty.Medium] = new List<TR2Entities>
             {
                 TR2Entities.Doberman, TR2Entities.GiantSpider, TR2Entities.Gunman1,
                 TR2Entities.Gunman2, TR2Entities.Knifethrower, TR2Entities.MaskedGoon1,
                 TR2Entities.MaskedGoon2, TR2Entities.MaskedGoon3, TR2Entities.Shark,
-                TR2Entities.StickWieldingGoon1, TR2Entities.StickWieldingGoon2, TR2Entities.TigerOrSnowLeopard
+                TR2Entities.StickWieldingGoon1, TR2Entities.StickWieldingGoon2, TR2Entities.TigerOrSnowLeopard,
+                TR2Entities.TRex
             },
             [EnemyDifficulty.Hard] = new List<TR2Entities>
             {
@@ -416,6 +459,20 @@ namespace TRRandomizerCore.Utilities
             [TR2LevelNames.LAIR] = 1
         };
 
+        // Trigger a redim of the imported enemy count if one of these entities is selected
+        private static readonly Dictionary<TR2Entities, Dictionary<string, int>> _targetEnemyAdjustmentCount = new Dictionary<TR2Entities, Dictionary<string, int>>
+        {
+            [TR2Entities.MarcoBartoli] = new Dictionary<string, int>
+            {
+                [TR2LevelNames.VENICE] = -2,
+                [TR2LevelNames.BARTOLI] = -2,
+                [TR2LevelNames.OPERA] = -2,
+                [TR2LevelNames.DA] = -1,
+                [TR2LevelNames.TIBET] = -1,
+                [TR2LevelNames.FLOATER] = -1,
+            }
+        };
+
         public static List<TR2Entities> GetEnemyGuisers(TR2Entities entity)
         {
             List<TR2Entities> entities = new List<TR2Entities>();
@@ -432,6 +489,16 @@ namespace TRRandomizerCore.Utilities
             {
                 TR2Entities.MonkWithKnifeStick, TR2Entities.MonkWithLongStick
             }
+        };
+
+        public static List<TR2Entities> GetFriendlyEnemies()
+        {
+            return new List<TR2Entities>(_friendlyEnemies);
+        }
+
+        private static readonly List<TR2Entities> _friendlyEnemies = new List<TR2Entities>
+        {
+            TR2Entities.Winston, TR2Entities.MonkWithKnifeStick, TR2Entities.MonkWithLongStick
         };
 
         // #146 Ensure Marco is spawned only once
@@ -471,7 +538,7 @@ namespace TRRandomizerCore.Utilities
             // HSH starting cutscene. For others we sacrifice the specific enemy death animations. So for example,
             // if XianGuardSpear is imported into Wreck, the existing misc anim will remain for the wheel door animation.
             // But if Marco is imported, the wheel door animation will also be sacrificed.
-            if (importEntities.Contains(TR2Entities.MarcoBartoli))
+            if (importEntities.Contains(TR2Entities.MarcoBartoli) && lvlName != TR2LevelNames.HOME)
             {
                 priorities[TR2Entities.Puzzle2_M_H] = TR2Entities.Puzzle2_M_H_Dagger;
                 priorities[TR2Entities.LaraMiscAnim_H] = TR2Entities.LaraMiscAnim_H_Xian;
@@ -480,6 +547,9 @@ namespace TRRandomizerCore.Utilities
             {
                 switch (lvlName)
                 {
+                    case TR2LevelNames.BARTOLI:
+                        priorities[TR2Entities.LaraMiscAnim_H] = TR2Entities.LaraMiscAnim_H_Venice;
+                        break;
                     case TR2LevelNames.RIG:
                     case TR2LevelNames.DA:
                     case TR2LevelNames.DORIA:

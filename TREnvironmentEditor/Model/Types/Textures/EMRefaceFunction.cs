@@ -8,6 +8,11 @@ namespace TREnvironmentEditor.Model.Types
     {
         public EMTextureMap TextureMap { get; set; }
 
+        public override void ApplyToLevel(TRLevel level)
+        {
+            ApplyTextures(level);
+        }
+
         public override void ApplyToLevel(TR2Level level)
         {
             ApplyTextures(level);
@@ -18,13 +23,29 @@ namespace TREnvironmentEditor.Model.Types
             ApplyTextures(level);
         }
 
-        public void ApplyTextures(TR2Level level)
+        public void ApplyTextures(TRLevel level)
         {
+            EMLevelData data = GetData(level);
+
             foreach (ushort texture in TextureMap.Keys)
             {
                 foreach (int roomIndex in TextureMap[texture].Keys)
                 {
-                    TR2Room room = level.Rooms[ConvertItemNumber(roomIndex, level.NumRooms)];
+                    TRRoom room = level.Rooms[data.ConvertRoom(roomIndex)];
+                    ApplyTextures(texture, TextureMap[texture][roomIndex], room.RoomData.Rectangles, room.RoomData.Triangles);
+                }
+            }
+        }
+
+        public void ApplyTextures(TR2Level level)
+        {
+            EMLevelData data = GetData(level);
+
+            foreach (ushort texture in TextureMap.Keys)
+            {
+                foreach (int roomIndex in TextureMap[texture].Keys)
+                {
+                    TR2Room room = level.Rooms[data.ConvertRoom(roomIndex)];
                     ApplyTextures(texture, TextureMap[texture][roomIndex], room.RoomData.Rectangles, room.RoomData.Triangles);
                 }
             }
@@ -32,11 +53,13 @@ namespace TREnvironmentEditor.Model.Types
 
         public void ApplyTextures(TR3Level level)
         {
+            EMLevelData data = GetData(level);
+
             foreach (ushort texture in TextureMap.Keys)
             {
                 foreach (int roomIndex in TextureMap[texture].Keys)
                 {
-                    TR3Room room = level.Rooms[ConvertItemNumber(roomIndex, level.NumRooms)];
+                    TR3Room room = level.Rooms[data.ConvertRoom(roomIndex)];
                     ApplyTextures(texture, TextureMap[texture][roomIndex], room.RoomData.Rectangles, room.RoomData.Triangles);
                 }
             }

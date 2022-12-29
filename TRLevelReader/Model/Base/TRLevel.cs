@@ -4,17 +4,13 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TRLevelReader.Helpers;
 using TRLevelReader.Serialization;
 
 namespace TRLevelReader.Model
 {
-    public class TRLevel : ISerializableCompact
+    public class TRLevel : BaseTRLevel, ISerializableCompact
     {
-        /// <summary>
-        /// 4 Bytes
-        /// </summary>
-        public uint Version { get; set; }
-
         /// <summary>
         /// 4 Bytes
         /// </summary>
@@ -225,19 +221,7 @@ namespace TRLevelReader.Model
         /// </summary>
         public ushort[] Overlaps { get; set; }
 
-        public ushort[] Zones { get; set; }
-
-        public ushort[] GroundZone { get; set; }
-
-        public ushort[] GroundZone2 { get; set; }
-
-        public ushort[] FlyZone { get; set; }
-
-        public ushort[] GroundZoneAlt { get; set; }
-
-        public ushort[] GroundZoneAlt2 { get; set; }
-
-        public ushort[] FlyZoneAlt { get; set; }
+        public TRZoneGroup[] Zones { get; set; }
 
         /// <summary>
         /// 4 bytes
@@ -376,7 +360,7 @@ namespace TRLevelReader.Model
                     foreach (TRBox box in Boxes) { writer.Write(box.Serialize()); }
                     writer.Write(NumOverlaps);
                     foreach (ushort overlap in Overlaps) { writer.Write(overlap); }
-                    foreach (ushort zone in Zones) { writer.Write(zone); }
+                    foreach (ushort zone in TR1BoxUtilities.FlattenZones(Zones)) { writer.Write(zone); }
                     writer.Write(NumAnimatedTextures);
                     writer.Write((ushort)AnimatedTextures.Length);
                     foreach (TRAnimatedTexture texture in AnimatedTextures) { writer.Write(texture.Serialize()); }

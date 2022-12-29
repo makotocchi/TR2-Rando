@@ -11,7 +11,7 @@
         ResizeMode="CanResizeWithGrip"
         WindowStartupLocation="CenterScreen"
         Closing="Window_Closing"
-        Title="{Binding AppTitle}" Height="748" Width="1370">
+        Title="{Binding AppTitle}" Height="805" Width="1370">
 
     <Window.CommandBindings>
         <CommandBinding Command="cmds:WindowCommands.Open"
@@ -44,9 +44,17 @@
                         CanExecute="RandomizeSeedsCommandBinding_CanExecute"
                         Executed="RandomizeSeedsCommandBinding_Executed"/>
 
+        <CommandBinding Command="cmds:WindowCommands.RandomizeOptions"
+                        CanExecute="RandomizeOptionsCommandBinding_CanExecute"
+                        Executed="RandomizeOptionsCommandBinding_Executed"/>
+
         <CommandBinding Command="cmds:WindowCommands.CreateGlobalSeed"
                         CanExecute="GlobalSeedCommandBinding_CanExecute"
                         Executed="GlobalSeedCommandBinding_Executed"/>
+
+        <CommandBinding Command="cmds:WindowCommands.EditCommunitySettings"
+                        CanExecute="EditCommunitySettingsCommandBinding_CanExecute"
+                        Executed="EditCommunitySettingsCommandBinding_Executed"/>
 
         <CommandBinding Command="cmds:WindowCommands.ShowBackup"
                         CanExecute="EditorActiveCommandBinding_CanExecute"
@@ -59,6 +67,10 @@
         <CommandBinding Command="cmds:WindowCommands.Restore"
                         CanExecute="EditorActiveCommandBinding_CanExecute"
                         Executed="RestoreCommandBinding_Executed"/>
+
+        <CommandBinding Command="cmds:WindowCommands.DeleteBackup"
+                        CanExecute="EditorActiveCommandBinding_CanExecute"
+                        Executed="DeleteBackupCommandBinding_Executed"/>
 
         <CommandBinding Command="cmds:WindowCommands.ImportSettings"
                         CanExecute="EditorActiveCommandBinding_CanExecute"
@@ -159,6 +171,9 @@
                 <MenuItem Header="Randomize All Seeds"
                           Command="cmds:WindowCommands.RandomizeSeeds"/>
 
+                <MenuItem Header="Randomize All Options"
+                          Command="cmds:WindowCommands.RandomizeOptions"/>
+
                 <MenuItem Header="Configure Global Seed"
                           Command="cmds:WindowCommands.CreateGlobalSeed"/>
             </MenuItem>
@@ -171,8 +186,13 @@
                 <MenuItem Header="Show Error Folder"
                           Command="cmds:WindowCommands.ShowErrors"/>
 
+                <Separator/>
+                
                 <MenuItem Header="Restore To Default"
                           Command="cmds:WindowCommands.Restore"/>
+
+                <MenuItem Header="Delete Backup"
+                          Command="cmds:WindowCommands.DeleteBackup"/>
 
                 <Separator/>
 

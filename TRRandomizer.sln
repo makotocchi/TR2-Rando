@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29926.136
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31919.166
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TR2Randomizer", "TR2Randomizer\TR2Randomizer.csproj", "{AF10D844-BBF2-4421-A76B-2C7A478D762C}"
 EndProject
@@ -29,7 +29,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TREnvironmentEditor", "TREn
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFXExport", "SFXExport\SFXExport.csproj", "{D3662F36-C8D8-471C-8F43-192CE748B04E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModelExport", "ModelExport\ModelExport.csproj", "{62336986-BC9F-447E-A046-E24E8153C5AF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ModelExport", "ModelExport\ModelExport.csproj", "{62336986-BC9F-447E-A046-E24E8153C5AF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LocationExport", "LocationExport\LocationExport.csproj", "{D69A8033-C014-421E-9DFA-29D5B8A547B2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TR1-NormalJumping", "TR1-NormalJumping\TR1-NormalJumping.csproj", "{FE2ADEDD-C7FF-4A6B-809B-6F9007EFABE2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TRLevelToolset", "TRLevelToolset\TRLevelToolset.csproj", "{4B75F7F5-A3D4-465F-A8B8-F5142057FD97}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -89,6 +95,18 @@ Global
 		{62336986-BC9F-447E-A046-E24E8153C5AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{62336986-BC9F-447E-A046-E24E8153C5AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{62336986-BC9F-447E-A046-E24E8153C5AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D69A8033-C014-421E-9DFA-29D5B8A547B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D69A8033-C014-421E-9DFA-29D5B8A547B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D69A8033-C014-421E-9DFA-29D5B8A547B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D69A8033-C014-421E-9DFA-29D5B8A547B2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE2ADEDD-C7FF-4A6B-809B-6F9007EFABE2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE2ADEDD-C7FF-4A6B-809B-6F9007EFABE2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE2ADEDD-C7FF-4A6B-809B-6F9007EFABE2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE2ADEDD-C7FF-4A6B-809B-6F9007EFABE2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4B75F7F5-A3D4-465F-A8B8-F5142057FD97}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4B75F7F5-A3D4-465F-A8B8-F5142057FD97}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4B75F7F5-A3D4-465F-A8B8-F5142057FD97}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4B75F7F5-A3D4-465F-A8B8-F5142057FD97}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -97,6 +115,9 @@ Global
 		{108D4840-3E84-466F-B5DE-AF00EECA8103} = {5F1A11E5-F541-4E3B-B331-93574EE4C629}
 		{D3662F36-C8D8-471C-8F43-192CE748B04E} = {5F1A11E5-F541-4E3B-B331-93574EE4C629}
 		{62336986-BC9F-447E-A046-E24E8153C5AF} = {5F1A11E5-F541-4E3B-B331-93574EE4C629}
+		{D69A8033-C014-421E-9DFA-29D5B8A547B2} = {5F1A11E5-F541-4E3B-B331-93574EE4C629}
+		{FE2ADEDD-C7FF-4A6B-809B-6F9007EFABE2} = {5F1A11E5-F541-4E3B-B331-93574EE4C629}
+		{4B75F7F5-A3D4-465F-A8B8-F5142057FD97} = {5F1A11E5-F541-4E3B-B331-93574EE4C629}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B68A2054-7393-4B0D-9004-0E92FB8324FC}

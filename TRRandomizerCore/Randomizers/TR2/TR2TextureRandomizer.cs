@@ -1,30 +1,41 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
+using TRGE.Core;
+using TRLevelReader.Helpers;
+using TRLevelReader.Model;
+using TRLevelReader.Model.Enums;
 using TRRandomizerCore.Helpers;
 using TRRandomizerCore.Levels;
 using TRRandomizerCore.Processors;
+using TRRandomizerCore.Textures;
 using TRRandomizerCore.Utilities;
-using TRGE.Core;
 using TRTexture16Importer.Textures;
-using TRTexture16Importer.Textures.Grouping;
-using TRTexture16Importer.Textures.Source;
 
 namespace TRRandomizerCore.Randomizers
 {
-    public class TR2TextureRandomizer : BaseTR2Randomizer
+    public class TR2TextureRandomizer : BaseTR2Randomizer, ITextureVariantHandler
     {
+        private static readonly Color[] _wireframeColours = ColorUtilities.GetWireframeColours();
+
         private readonly Dictionary<AbstractTextureSource, string> _persistentVariants;
+        private readonly Dictionary<string, WireframeData> _wireframeData;
         private readonly object _drawLock;
-        private TextureDatabase _textureDatabase;
+        private TR2TextureDatabase _textureDatabase;
         private Dictionary<TextureCategory, bool> _textureOptions;
+        private List<TR2ScriptedLevel> _wireframeLevels;
+        private List<TR2ScriptedLevel> _solidLaraLevels;
+        private Color _persistentWireColour;
 
         internal bool NightModeOnly => !Settings.RandomizeTextures;
-        internal TexturePositionMonitorBroker TextureMonitor { get; set; }
+        internal TR2TextureMonitorBroker TextureMonitor { get; set; }
 
         public TR2TextureRandomizer()
         {
             _persistentVariants = new Dictionary<AbstractTextureSource, string>();
+            _wireframeData = JsonConvert.DeserializeObject<Dictionary<string, WireframeData>>(ReadResource(@"TR2\Textures\wireframing.json"));
             _drawLock = new object();
         }
 
@@ -32,7 +43,7 @@ namespace TRRandomizerCore.Randomizers
         {
             _generator = new Random(seed);
 
-            using (_textureDatabase = new TextureDatabase())
+            using (_textureDatabase = new TR2TextureDatabase())
             {
                 if (NightModeOnly)
                 {
@@ -56,11 +67,11 @@ namespace TRRandomizerCore.Randomizers
             {
                 LoadLevelInstance(lvl);
 
-                TexturePositionMonitor monitor = TextureMonitor.GetMonitor(_levelInstance.Name);
+                TextureMonitor<TR2Entities> monitor = TextureMonitor.GetMonitor(_levelInstance.Name);
                 if (monitor != null && monitor.UseNightTextures)
                 {
-                    TextureLevelMapping mapping = GetMapping(_levelInstance);
-                    using (TextureHolder holder = new TextureHolder(mapping, this))
+                    TR2TextureMapping mapping = GetMapping(_levelInstance);
+                    using (TextureHolder<TR2Entities, TR2Level> holder = new TextureHolder<TR2Entities, TR2Level>(mapping, this))
                     {
                         foreach (AbstractTextureSource source in holder.Variants.Keys)
                         {
@@ -69,6 +80,8 @@ namespace TRRandomizerCore.Randomizers
                                 RedrawTargets(holder.Mapping, source, holder.Variants[source], _textureOptions);
                             }
                         }
+
+                        DrawReplacements(holder.Mapping);
                     }
 
                     SaveLevelInstance();
@@ -87,10 +100,13 @@ namespace TRRandomizerCore.Randomizers
             _textureOptions = new Dictionary<TextureCategory, bool>
             {
                 [TextureCategory.KeyItem] = !Settings.RetainKeySpriteTextures,
-                [TextureCategory.Secret] = !Settings.RetainSecretSpriteTextures
+                [TextureCategory.Secret] = !Settings.RetainSecretSpriteTextures,
+                [TextureCategory.LevelColours] = !Settings.RetainMainLevelTextures
             };
 
             SetMessage("Randomizing textures - loading levels");
+
+            ChooseWireframeLevels();
 
             List<TextureProcessor> processors = new List<TextureProcessor> { new TextureProcessor(this) };
             int levelSplit = (int)(Levels.Count / _maxThreads);
@@ -134,7 +150,35 @@ namespace TRRandomizerCore.Randomizers
             }
         }
 
-        private string GetSourceVariant(AbstractTextureSource source)
+        private void ChooseWireframeLevels()
+        {
+            TR2ScriptedLevel assaultCourse = Levels.Find(l => l.Is(TR2LevelNames.ASSAULT));
+            ISet<TR2ScriptedLevel> exlusions = new HashSet<TR2ScriptedLevel> { assaultCourse };
+
+            _wireframeLevels = Levels.RandomSelection(_generator, (int)Settings.WireframeLevelCount, exclusions: exlusions);
+            if (Settings.AssaultCourseWireframe)
+            {
+                _wireframeLevels.Add(assaultCourse);
+            }
+
+            if (Settings.UseSolidLaraWireframing)
+            {
+                _solidLaraLevels = new List<TR2ScriptedLevel>(_wireframeLevels);
+            }
+            else
+            {
+                _solidLaraLevels = _wireframeLevels.RandomSelection(_generator, _generator.Next(Math.Min(1, _wireframeLevels.Count), _wireframeLevels.Count));
+            }
+
+            if (Settings.PersistTextureVariants)
+            {
+                _persistentWireColour = _wireframeColours[_generator.Next(0, _wireframeColours.Length)];
+            }
+
+            _wireframeData.Values.ToList().ForEach(d => d.HighlightLadders = Settings.UseWireframeLadders);
+        }
+
+        public string GetSourceVariant(AbstractTextureSource source)
         {
             lock (_drawLock)
             {
@@ -151,7 +195,7 @@ namespace TRRandomizerCore.Randomizers
             }
         }
 
-        private void StoreVariant(AbstractTextureSource source, string variant)
+        public void StoreVariant(AbstractTextureSource source, string variant)
         {
             if (Settings.PersistTextureVariants)
             {
@@ -159,11 +203,11 @@ namespace TRRandomizerCore.Randomizers
             }
         }
 
-        private TextureLevelMapping GetMapping(TR2CombinedLevel level)
+        private TR2TextureMapping GetMapping(TR2CombinedLevel level)
         {
             lock (_drawLock)
             {
-                return TextureLevelMapping.Get
+                return TR2TextureMapping.Get
                 (
                     level.Data,
                     level.JsonID,
@@ -174,7 +218,7 @@ namespace TRRandomizerCore.Randomizers
             }
         }
 
-        private void RedrawTargets(TextureLevelMapping mapping, AbstractTextureSource source, string variant, Dictionary<TextureCategory, bool> options)
+        private void RedrawTargets(AbstractTextureMapping<TR2Entities, TR2Level> mapping, AbstractTextureSource source, string variant, Dictionary<TextureCategory, bool> options)
         {
             lock (_drawLock)
             {
@@ -182,18 +226,53 @@ namespace TRRandomizerCore.Randomizers
             }
         }
 
+        private void DrawReplacements(AbstractTextureMapping<TR2Entities, TR2Level> mapping)
+        {
+            lock (_drawLock)
+            {
+                mapping.DrawReplacements();
+            }
+        }
+
+        private bool IsWireframeLevel(TR2CombinedLevel lvl)
+        {
+            return !NightModeOnly &&
+                _wireframeData.ContainsKey(lvl.JsonID) &&
+                (_wireframeLevels.Contains(lvl.Script) || (lvl.IsCutScene && _wireframeLevels.Contains(lvl.ParentLevel.Script)));
+        }
+
+        private bool IsSolidLaraLevel(TR2CombinedLevel lvl)
+        {
+            return IsWireframeLevel(lvl) &&
+                (_solidLaraLevels.Contains(lvl.Script) || (lvl.IsCutScene && _solidLaraLevels.Contains(lvl.ParentLevel.Script)));
+        }
+
+        private WireframeData GetWireframeData(TR2CombinedLevel lvl)
+        {
+            return IsWireframeLevel(lvl) ? _wireframeData[lvl.JsonID] : null;
+        }
+
+        private Color GetWireframeVariant()
+        {
+            return Settings.PersistTextureVariants ?
+                _persistentWireColour :
+                _wireframeColours[_generator.Next(0, _wireframeColours.Length)];
+        }
+
         internal class TextureProcessor : AbstractProcessorThread<TR2TextureRandomizer>
         {
-            private readonly Dictionary<TR2CombinedLevel, TextureHolder> _holders;
-            private readonly LandmarkImporter _landmarkImporter;
+            private readonly Dictionary<TR2CombinedLevel, TextureHolder<TR2Entities, TR2Level>> _holders;
+            private readonly TR2LandmarkImporter _landmarkImporter;
+            private readonly TR2Wireframer _wireframer;
 
             internal override int LevelCount => _holders.Count;
 
             internal TextureProcessor(TR2TextureRandomizer outer)
                 :base(outer)
             {
-                _holders = new Dictionary<TR2CombinedLevel, TextureHolder>();
-                _landmarkImporter = new LandmarkImporter();
+                _holders = new Dictionary<TR2CombinedLevel, TextureHolder<TR2Entities, TR2Level>>();
+                _landmarkImporter = new TR2LandmarkImporter();
+                _wireframer = new TR2Wireframer();
             }
 
             internal void AddLevel(TR2CombinedLevel level)
@@ -222,15 +301,46 @@ namespace TRRandomizerCore.Randomizers
 
                 foreach (TR2CombinedLevel level in levels)
                 {
-                    TextureLevelMapping mapping = _outer.GetMapping(level);
+                    TR2TextureMapping mapping = _outer.GetMapping(level);
                     if (mapping != null)
                     {
-                        TextureHolder parentHolder = null;
+                        TextureHolder<TR2Entities, TR2Level> parentHolder = null;
                         if (level.IsCutScene)
                         {
                             parentHolder = _holders[level.ParentLevel];
                         }
-                        _holders[level] = new TextureHolder(mapping, _outer, parentHolder);
+                        _holders[level] = new TextureHolder<TR2Entities, TR2Level>(mapping, _outer, parentHolder);
+
+                        if (_outer.IsWireframeLevel(level))
+                        {
+                            WireframeData data = _outer.GetWireframeData(level);
+                            data.SolidEnemies = _outer.Settings.UseSolidEnemyWireframing;
+                            if (level.IsCutScene)
+                            {
+                                WireframeData parentData = _outer.GetWireframeData(level.ParentLevel);
+                                data.HighlightColour = parentData.HighlightColour;
+                                data.SolidLara = parentData.SolidLara;
+                            }
+                            else
+                            {
+                                data.HighlightColour = _outer.GetWireframeVariant();
+                                data.SolidLara = _outer.IsSolidLaraLevel(level);
+                            }
+
+                            if (_outer.Settings.UseDifferentWireframeColours)
+                            {
+                                foreach (TRModel model in level.Data.Models)
+                                {
+                                    data.ModelColours[model.ID] = _outer.GetWireframeVariant();
+                                }
+
+                                // Make sure the front and back of the dragon match
+                                if (data.ModelColours.ContainsKey((uint)TR2Entities.DragonFront_H))
+                                {
+                                    data.ModelColours[(uint)TR2Entities.DragonBack_H] = data.ModelColours[(uint)TR2Entities.DragonFront_H];
+                                }
+                            }
+                        }
                     }
                     else
                     {
@@ -263,108 +373,35 @@ namespace TRRandomizerCore.Randomizers
 
             private void ProcessLevel(TR2CombinedLevel level, Dictionary<TextureCategory, bool> options)
             {
-                TexturePositionMonitor monitor = _outer.TextureMonitor.GetMonitor(level.Name);
+                TextureMonitor<TR2Entities> monitor = _outer.TextureMonitor.GetMonitor(level.Name);
+                bool isWireframe = _outer.IsWireframeLevel(level);
 
                 options[TextureCategory.NightMode] = monitor != null && monitor.UseNightTextures;
                 options[TextureCategory.DayMode] = !options[TextureCategory.NightMode];
 
-                using (TextureHolder holder = _holders[level])
+                using (TextureHolder<TR2Entities, TR2Level> holder = _holders[level])
                 {
                     foreach (AbstractTextureSource source in holder.Variants.Keys)
                     {
                         _outer.RedrawTargets(holder.Mapping, source, holder.Variants[source], options);
                     }
 
-                    // Add landmarks, but only if there is room available for them
-                    if (holder.Mapping.LandmarkMapping.Count > 0)
+                    if (!isWireframe)
                     {
-                        _landmarkImporter.Import(level, holder.Mapping, monitor != null && monitor.UseMirroring);
-                    }
-                }
-            }
-        }
-
-        internal class TextureHolder : IDisposable
-        {
-            internal TextureLevelMapping Mapping { get; private set; }
-            internal Dictionary<AbstractTextureSource, string> Variants { get; private set; }
-
-            internal TextureHolder(TextureLevelMapping mapping, TR2TextureRandomizer outer, TextureHolder parentHolder = null)
-            {
-                Mapping = mapping;
-                Variants = new Dictionary<AbstractTextureSource, string>();
-                
-                // Check first for any grouped sources, but only if the parent holder is null
-                // as regrouping is not currently possible.
-                List<StaticTextureSource> handledSources = new List<StaticTextureSource>();
-                if (parentHolder == null)
-                {
-                    List<TextureGrouping> groupingList = mapping.StaticGrouping;
-                    foreach (TextureGrouping staticGrouping in groupingList)
-                    {
-                        // Choose a variant for the leader, then assign this to the followers if they support it
-                        string variant = outer.GetSourceVariant(staticGrouping.Leader);
-                        Variants.Add(staticGrouping.Leader, variant);
-                        handledSources.Add(staticGrouping.Leader);
-
-                        foreach (StaticTextureSource source in staticGrouping.Followers)
+                        // Add landmarks, but only if there is room available for them
+                        if (holder.Mapping.LandmarkMapping.Count > 0)
                         {
-                            if (source.HasVariants)
-                            {
-                                // Are we enforcing a specific colour for this theme?
-                                if (staticGrouping.ThemeAlternatives.ContainsKey(variant) && staticGrouping.ThemeAlternatives[variant].ContainsKey(source))
-                                {
-                                    Variants.Add(source, staticGrouping.ThemeAlternatives[variant][source]);
-                                }
-                                // Otherwise, does the grouped source have the same variant available?
-                                else if (source.Variants.Contains(variant))
-                                {
-                                    Variants.Add(source, variant);
-                                    // If persistent textures are being used, have outer store what has been assigned to this source.
-                                    outer.StoreVariant(source, variant);
-                                }
-                                // Otherwise, just add another random value for now (we ignore single variant sources such as FL/DL Spooky theme)
-                                else if (source.Variants.Length > 1)
-                                {
-                                    Variants.Add(source, outer.GetSourceVariant(source));
-                                }
-
-                                handledSources.Add(source);
-                            }
+                            _landmarkImporter.Import(level.Data, holder.Mapping, monitor != null && monitor.UseMirroring);
                         }
-                    }
-                }
-                else
-                {
-                    foreach (AbstractTextureSource source in parentHolder.Variants.Keys)
-                    {
-                        Variants[source] = parentHolder.Variants[source];
+
+                        _outer.DrawReplacements(holder.Mapping);
                     }
                 }
 
-                foreach (StaticTextureSource source in Mapping.StaticMapping.Keys)
+                if (isWireframe)
                 {
-                    // Only randomize sources that aren't already grouped and that actually have variants, or if we have a master
-                    // parent holder, only add it the source if it's not already defined.
-                    if (source.HasVariants && ((parentHolder == null && !handledSources.Contains(source)) || (parentHolder != null && !Variants.ContainsKey(source))))
-                    {
-                        Variants.Add(source, outer.GetSourceVariant(source));
-                    }
+                    _wireframer.Apply(level.Data, _outer.GetWireframeData(level));
                 }
-
-                // Dynamic changes should be made after static (e.g. for overlays)
-                foreach (DynamicTextureSource source in Mapping.DynamicMapping.Keys)
-                {
-                    if (!Variants.ContainsKey(source))
-                    {
-                        Variants.Add(source, outer.GetSourceVariant(source));
-                    }
-                }
-            }
-
-            public void Dispose()
-            {
-                Mapping.Dispose();
             }
         }
     }

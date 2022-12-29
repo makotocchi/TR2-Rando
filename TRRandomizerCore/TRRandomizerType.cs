@@ -20,12 +20,38 @@
         Outfit,
         Text,
         Environment,
+        Health, // Distinct from ammoless in Tomb1Main
+        Weather,
 
         // Individual settings
         DisableDemos = 100,
         OutfitDagger,
         SFX,
         GlobeDisplay,
-        RewardRooms
+        RewardRooms,
+        VFX,
+        DragonSpawn,
+        BirdMonsterBehaviour,
+        SecretAudio,
+        Mediless,
+        KeyItems,
+        GlitchedSecrets,
+        HardSecrets,
+        SecretCount,
+        Ladders,
+        KeyItemTextures,
+        SecretTextures,
+        Braid,
+        WaterColour,
+        ExtraPickups,
+        AmbientTracks,
+        AtlanteanEggBehaviour,
+        GymOutfit,
+        HiddenEnemies,
+        ItemSprite,
+        SecretModels,
+        LarsonBehaviour,
+        DynamicTextures,
+        MeshSwaps
     }
 }

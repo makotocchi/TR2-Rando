@@ -3176,8 +3176,8 @@
       "Y": -5120,
       "Z": 81198,
       "Room": 197,
-      "RequiresGlitch": true,
-      "Difficulty": "Hard"
+      "Difficulty": "Hard",
+      "RequiresGlitch": true
     },
     {
       "X": 14469,
@@ -3233,8 +3233,8 @@
       "Y": -4083,
       "Z": 37374,
       "Room": 2,
-      "RequiresGlitch": true,
-      "Difficulty": "Hard"
+      "Difficulty": "Hard",
+      "RequiresGlitch": true
     },
     {
       "X": 7100,
@@ -3356,8 +3356,53 @@
       "Y": -4275,
       "Z": 92461,
       "Room": 115,
-      "RequiresGlitch": true,
-      "Difficulty": "Hard"
+      "Difficulty": "Hard",
+      "RequiresGlitch": true
+    },
+    {
+      "X": 21044,
+      "Y": -256,
+      "Z": 4486,
+      "Room": 24,
+      "RequiresGlitch": true
+    },
+    {
+      "X": 33278,
+      "Y": -8997,
+      "Z": 81970,
+      "Room": 42,
+      "Difficulty": "Hard",
+      "RequiresGlitch": true
+    },
+    {
+      "X": 43520,
+      "Y": -5376,
+      "Z": 85504,
+      "Room": 113,
+      "Difficulty": "Hard",
+      "RequiresGlitch": true
+    },
+    {
+      "X": 60928,
+      "Y": -5376,
+      "Z": 86528,
+      "Room": 89,
+      "Difficulty": "Hard",
+      "RequiresGlitch": true
+    },
+    {
+      "X": 39424,
+      "Y": 9984,
+      "Z": 100864,
+      "Room": 126,
+      "RequiresGlitch": true
+    },
+    {
+      "X": 32256,
+      "Y": 10240,
+      "Z": 93696,
+      "Room": 16,
+      "RequiresGlitch": true
     }
   ],
   "STPAUL.TR2": [
